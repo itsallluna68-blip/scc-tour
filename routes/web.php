@@ -120,6 +120,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     )
         ->name('places.removeImage');
 
+    // event edit - remove image
+    Route::post(
+        'events/{id}/remove-image',
+        [AdminEventController::class, 'removeImage']
+    )
+        ->name('events.removeImage');
+
     // SETTINGS
     Route::get('settings', [SettingsController::class, 'edit'])
         ->name('settings.edit');

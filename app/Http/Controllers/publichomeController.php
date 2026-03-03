@@ -13,8 +13,9 @@ class publichomeController extends Controller
     {
         $now = Carbon::now();
 
-        // Get next 3 upcoming events
-        $events = Events::where('e_datetime', '>=', $now)
+        // Get next 5 upcoming ACTIVE events only
+        $events = Events::where('status', 1) // ✅ only active
+            ->where('e_datetime', '>=', $now)
             ->orderBy('e_datetime', 'asc')
             ->take(5)
             ->get();

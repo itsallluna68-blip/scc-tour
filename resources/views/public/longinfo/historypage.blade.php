@@ -4,16 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>History | San Carlos City</title>
+  <title>The History of San Carlos City</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    body {
+      font-family: 'Inter', sans-serif;
     }
 
     .fade-up {
@@ -29,43 +25,42 @@
   </style>
 </head>
 
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
-  {{-- header --}}
+  {{-- Header --}}
   @include('components.fnavbar')
   <div class="mb-12"></div>
 
-  {{-- HISTORY CONTENT --}}
-  <section class="max-w-5xl mx-auto px-6 py-16">
+  {{-- HISTORY SECTION --}}
+  <section class="max-w-7xl mx-auto px-6 py-20 text-center">
 
     <!-- Title -->
-    <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">
-            {{ $settings['history_title'] ?? 'History San Carlos City' }}
-        </h1>
+    <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-4 uppercase">
+      The History of San Carlos City
+    </h1>
 
-        <p class="text-gray-600 text-lg">
-            {{ $settings['history_subtitle'] ?? '' }}
-        </p>
-    </div>
+    <!-- Small Tagline -->
+    <p class="text-gray-600 text-sm md:text-base mb-10">
+      {!! nl2br(e($settings['history_subtitle'] ?? 'Learn about the rich history and cultural heritage of San Carlos City.')) !!}
+    </p>
 
     <!-- Image -->
-    <div class="flex justify-center mb-10">
-        @php
-            $historyImg = $settings['historyImg'][0] ?? null;
-        @endphp
-        <img src="{{ $historyImg ? asset('uploads/settings/' . $historyImg) : asset('image/scc_ovw.jpg') }}"
-             class="w-full md:w-4/5 lg:w-3/4 h-72 object-cover rounded-2xl shadow-lg">
+    <div class="flex justify-center mb-12">
+      @php
+          $historyImg = $settings['historyImg'][0] ?? null;
+      @endphp
+      <img src="{{ $historyImg ? asset('uploads/settings/' . $historyImg) : asset('image/scc_ovw.jpg') }}"
+           class="w-full md:w-[600px] h-[400px] object-cover shadow-xl">
     </div>
 
-    <!-- Content -->
-    <div class="text-gray-700 leading-relaxed text-justify">
-        {!! nl2br(e($settings['historyTxt'] ?? 'No content added yet.')) !!}
+    <!-- Text Content -->
+    <div class="max-w-4xl mx-auto text-gray-700 text-lg md:text-base leading-relaxed space-y-6 text-justify">
+      {!! nl2br(e($settings['historyTxt'] ?? 'No content added yet.')) !!}
     </div>
 
-</section>
+  </section>
 
-  {{-- footer --}}
+  {{-- Footer --}}
   @include('components.ffooter')
 
 </body>

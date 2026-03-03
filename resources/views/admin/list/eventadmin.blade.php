@@ -108,7 +108,7 @@
                         {!! json_encode($event->e_maplink) !!},
                         {!! json_encode($event->e_link) !!},
                         {{ $event->status }},
-                        {!! json_encode($event->pic0 ? (is_array($event->pic0) ? $event->pic0 : [$event->pic0]) : []) !!} 
+                        {!! json_encode($event->pics ?? []) !!}
                     )'>✏️</button>
                 </td>
             </tr>
@@ -345,21 +345,55 @@
             label.innerText = this.checked ? "Active" : "Inactive";
         };
 
-        // Render image thumbnails
+        // Render image thumbnails with delete buttons
         const preview = document.getElementById('editImagePreview');
         preview.innerHTML = '';
         if (images && images.length > 0) {
             images.forEach(src => {
                 if (src) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative w-20 h-20 mr-2';
+
                     const img = document.createElement('img');
                     img.src = `${window.location.origin}/storage/${src}`;
-                    img.className = 'h-20 w-20 object-cover mr-2 rounded';
-                    preview.appendChild(img);
+                    img.className = 'w-full h-full object-cover rounded';
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.innerHTML = '✕';
+                    removeBtn.className = 'absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center';
+                    removeBtn.onclick = () => {
+                        removeEventImage(id, src, wrapper);
+                    };
+
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(removeBtn);
+                    preview.appendChild(wrapper);
                 }
             });
         }
 
         openEditEventModal();
+    }
+
+    // AJAX helper to remove a single image for an event
+    function removeEventImage(eventId, imagePath, wrapperEl) {
+        if (!confirm('Delete this image?')) return;
+
+        fetch(`/admin/events/${eventId}/remove-image`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ image: imagePath })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                wrapperEl.remove();
+            }
+        });
     }
 </script>
 

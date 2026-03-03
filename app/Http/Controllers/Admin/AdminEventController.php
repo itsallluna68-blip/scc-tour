@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Events;
+use Illuminate\Support\Facades\Storage;
 
 class AdminEventController extends Controller
 {
@@ -33,7 +34,7 @@ class AdminEventController extends Controller
             'e_link'     => 'nullable|string',
             'status'     => 'required|in:0,1',
             'pics'       => 'nullable|array',
-            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
+            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:6048',
         ]);
 
         $images = [];
@@ -72,7 +73,7 @@ class AdminEventController extends Controller
             'e_link'     => 'nullable|string',
             'status'     => 'required|in:0,1',
             'pics'       => 'nullable|array',
-            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
+            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:6048',
         ]);
 
         $event = Events::findOrFail($id);
@@ -103,5 +104,27 @@ class AdminEventController extends Controller
 
         return redirect()->route('admin.events.index')
                          ->with('success', 'Event updated successfully.');
+    }
+
+    // Remove a single image from an event
+    public function removeImage(Request $request, $id)
+    {
+        $event = Events::findOrFail($id);
+        $imageToRemove = $request->image;
+
+        $pics = $event->pics ?? [];
+        $updated = array_filter($pics, function ($img) use ($imageToRemove) {
+            return $img !== $imageToRemove;
+        });
+
+        // delete file from storage if exists
+        if (!empty($imageToRemove) && Storage::disk('public')->exists($imageToRemove)) {
+            Storage::disk('public')->delete($imageToRemove);
+        }
+
+        $event->pics = array_values($updated);
+        $event->save();
+
+        return response()->json(['success' => true]);
     }
 }
