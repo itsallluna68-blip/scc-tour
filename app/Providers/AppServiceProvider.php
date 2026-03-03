@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Vite;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\ServiceProvider;
 use App\Models\Setting;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,5 +41,10 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             // fail silently in case DB not available during certain artisan commands
         }
+        
+        if ($this->app->environment('production')) {
+           URL::forceScheme('https');
+       }
     }
+
 }
