@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class AdminSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+{
+    DB::table('tblusers')->insert([
+        'fname' => 'Reighn',
+        'mname' => 'C.',
+        'lname' => 'Ortega',
+        'username' => 'admin',
+        'password' => bcrypt('ann12345'), // Ang imong password sa pag-login
+        'usertype' => 'Superadmin',
+        'status' => '1',
+    ]);
+}
+}
