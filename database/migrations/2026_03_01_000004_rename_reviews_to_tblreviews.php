@@ -11,9 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Rename reviews table to tblreviews
-        Schema::rename('reviews', 'tblreviews');
-        
         // Add missing columns
         Schema::table('tblreviews', function (Blueprint $table) {
             // Rename id to rid
