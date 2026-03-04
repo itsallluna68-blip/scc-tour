@@ -222,7 +222,7 @@
 
             <h2 class="text-2xl font-semibold text-gray-900 mb-4">
                 Write a Review
-            </h2>
+            </h2> 
 
             {{-- Display rate limit error --}}
             @if ($errors->has('review_cooldown'))
