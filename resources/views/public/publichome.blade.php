@@ -283,6 +283,11 @@
 
     </div>
 
+          <a href="{{ route('exploreplaces') }}"
+         class="inline-block font-bold text-black hover:opacity-70 transition">
+        VIEW ALL PLACES
+      </a>
+
   </div>
 </section>
 

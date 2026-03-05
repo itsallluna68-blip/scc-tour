@@ -19,7 +19,7 @@ class AdminSeeder extends Seeder
         'mname' => 'C.',
         'lname' => 'Ortega',
         'username' => 'admin',
-        'password' => bcrypt('ann12345'), // Ang imong password sa pag-login
+        'password' => bcrypt('ann12345'), 
         'usertype' => 'Superadmin',
         'status' => '1',
     ]);

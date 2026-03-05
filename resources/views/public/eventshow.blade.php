@@ -130,7 +130,7 @@
         <h2 class="text-2xl font-bold text-black mb-6 text-center">
             Other Upcoming Events
         </h2>
-
+ 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @foreach($otherEvents as $other)
                 <div class="bg-white border border-gray-200 rounded-md overflow-hidden hover:shadow-md transition flex flex-col">
