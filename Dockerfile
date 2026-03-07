@@ -41,6 +41,6 @@ RUN php artisan view:clear
 EXPOSE 8000
 
 # Run migrations + seed + start Laravel
-# CMD php artisan migrate --force --seed && php -S 0.0.0.0:$PORT -t public
-RUN chmod +x start.sh
-CMD ["sh", "start.sh"]
+CMD php artisan migrate --force --seed && php -S 0.0.0.0:$PORT -t public
+# RUN chmod +x start.sh
+# CMD ["sh", "start.sh"]
