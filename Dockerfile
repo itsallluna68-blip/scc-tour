@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# 1. Install system dependencies + Node.js (needed for Vite)
+# 1. System dependencies + Node.js
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -9,13 +9,11 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     curl \
-    gnupg
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
-# Install Node.js (Version 18 or 20 is recommended for Laravel 12)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs
-
-# 2. Install PHP extensions
+# 2. PHP extensions
 RUN docker-php-ext-install gd pdo pdo_mysql
 
 # 3. Install Composer
@@ -23,21 +21,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
+# 4. Copy app
 COPY . .
 
-# 4. Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+# 5. Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# 5. Build Vite Assets
-# This step fixes the "Vite manifest not found" error
+# 6. Build Vite assets
 RUN npm install && npm run build
 
 EXPOSE 8000
 
-# 6. Startup Command
-# Added --seed to automatically run your AdminSeeder on deployment
+# 7. Startup command (safer)
+# We separate migrations so you can run them manually first
 CMD php artisan config:clear && \
-    php artisan migrate --force --seed && \
+    php artisan route:cache && \
+    php artisan view:cache && \
     php -S 0.0.0.0:$PORT -t public
-
-    
