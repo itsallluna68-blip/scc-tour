@@ -2,14 +2,7 @@ FROM php:8.2-cli
 
 # 1. System dependencies + Node.js
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    curl \
-    gnupg \
+    git unzip libpng-dev libonig-dev libxml2-dev zip curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
@@ -30,11 +23,13 @@ RUN composer install --no-dev --optimize-autoloader
 # 6. Build Vite assets
 RUN npm install && npm run build
 
-EXPOSE 8000
+# 7. Expose the port Railway expects
+EXPOSE 8080
 
-# 7. Startup command (safer)
-# We separate migrations so you can run them manually first
+# 8. Startup command
+# Use $PORT provided by Railway; fall back to 8080
+ENV PORT 8080
 CMD php artisan config:clear && \
     php artisan route:cache && \
     php artisan view:cache && \
-    php -S 0.0.0.0:$PORT -t public
+    php -S 0.0.0.0:$PORT -t public 
