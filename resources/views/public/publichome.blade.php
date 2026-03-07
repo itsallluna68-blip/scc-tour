@@ -20,7 +20,9 @@
     .fade-up.show {
       opacity: 1;
       transform: translateY(0);
+      
     }
+
   </style>
 </head>
 
@@ -35,21 +37,14 @@
       $heroTagline = $settings['tagline'] ?? '"Soaring Green City of Opportunities. ¡Vamos, San Carlos!"';
       $heroBgImage = $settings['bgImg'][0] ?? 'can-carlos-city-hall.png';
   @endphp
-<section id="hero" class="relative h-[95vh] flex items-start justify-center text-white overflow-hidden pt-40 md:pt-52">
+  <section id="hero" class="relative h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden">
+    <img src="{{ asset('image/can-carlos-city-hall.png') }}" 
+         alt="Tourism Image"
+         class="absolute inset-0 w-full h-full object-cover scale-105 animate-[float_12s_ease-in-out_infinite]" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
 
-<img src="{{ asset('image/can-carlos-city-hall.png') }}" 
-       alt="Tourism Image"
-       class="absolute inset-0 w-full h-full object-cover scale-105" />
-
-  <div class="absolute inset-0 
-              bg-gradient-to-b 
-              from-black/40 
-              via-black/50 
-              to-black/80">
-  </div>
-  <div class="relative z-10 max-w-6xl mx-auto px-6 text-center">
-
-    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight uppercase">
+    <div class="relative z-10 px-6 fade-up mt-8">
+      <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight uppercase">
       SAN CARLOS <span class="text-blue-400">TOURISM</span>
     </h1>
 
@@ -65,89 +60,28 @@
       {!! nl2br(e($heroTagline)) !!}
     </p>
 
-    <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+      {{-- buttons --}}
+<div class="mt-10">
+  <a href="{{ route('activities.index') }}"  
+     class="mr-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+    Activities
+  </a>
 
-      <a href="{{ route('activities.index') }}"
-         class="group bg-white/10 backdrop-blur-lg 
-                border border-white/10
-                rounded-2xl p-8
-                flex flex-col items-center justify-center text-center
-                shadow-xl
-                transition duration-300
-                hover:bg-white/15
-                hover:border-red-400/40
-                hover:scale-105">
+  <a href="{{ route('exploreplaces') }}" 
+     class="mr-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+    Explore
+  </a>
 
-        <svg class="hidden md:block h-10 w-10 mb-4 text-white transition group-hover:text-red-400"
-     xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-        </svg>
-
-        <span class="font-semibold text-lg tracking-wide">
-          Activities
-        </span>
-      </a>
-
-      <a href="{{ route('exploreplaces') }}"
-         class="group bg-white/10 backdrop-blur-lg 
-                border border-white/10
-                rounded-2xl p-8
-                flex flex-col items-center justify-center text-center
-                shadow-xl
-                transition duration-300
-                hover:bg-white/15
-                hover:border-blue-400/40
-                hover:scale-105">
-
-<svg class="hidden md:block h-10 w-10 mb-4 text-white transition group-hover:text-blue-400"
-     xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M9 20l-5.447-2.724A2 2 0 013 15.382V6.618a2 2 011.553-1.894L9 2m0 18l6-2m-6 2V2m6 16l5.447-2.724A2 2 0 0021 15.382V6.618a2 2 0 00-1.553-1.894L15 2m0 16V2" />
-        </svg>
-
-        <span class="font-semibold text-lg tracking-wide">
-          Explore
-        </span>
-      </a>
-
-      <a href="#a-events"
-         class="group bg-white/10 backdrop-blur-lg 
-                border border-white/10
-                rounded-2xl p-8
-                flex flex-col items-center justify-center text-center
-                shadow-xl
-                transition duration-300
-                hover:bg-white/15
-                hover:border-yellow-400/50
-                hover:scale-105">
-
-<svg class="hidden md:block h-10 w-10 mb-4 text-white transition group-hover:text-yellow-400"
-     xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 002-2V7a2 2 00-2-2H5a2 2 00-2 2v10a2 2 002 2z" />
-        </svg>
-
-        <span class="font-semibold text-lg tracking-wide">
-          Events
-        </span>
-      </a>
-
+  <a href="#a-events" 
+     class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+    Events
+  </a>
+</div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- 🏛️ HISTORY SECTION -->
-<section class="bg-gray-50 py-20">
+<section class="fade-up bg-gray-50 py-20">
 
   <!-- Small Divider -->
   <div class="max-w-7xl mx-auto px-6">
@@ -164,7 +98,7 @@
       @endphp
       <img src="{{ $historyImg ? asset('uploads/settings/' . $historyImg) : asset('image/scc_ovw.jpg') }}" 
            alt="San Carlos History" 
-           class="w-full h-[400px] object-cover shadow-xl">
+           class="w-full  rounded-2xl shadow-lg object-cover transition-transform duration-500">
     </div>
 
     <!-- Text (Right) -->
@@ -191,7 +125,7 @@
 </section>
 
 <!-- 🌄 POPULAR PLACES (Bento Editorial Style, Refined) -->
-<section class="bg-gray-50 py-20 relative overflow-hidden">
+<section class="fade-up bg-gray-50 py-20 relative overflow-hidden">
 
 <!-- Divider -->
 <div class="max-w-7xl mx-auto px-4">
@@ -250,12 +184,12 @@
           @if(!empty($place->images) && count($place->images) > 0)
               <img 
                   src="{{ asset('storage/' . $place->images[0]) }}" 
-                  class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:blur-[2px]"
+                  class="rounded-2xl absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:blur-[2px] "
                   alt="{{ $place->name }}">
           @endif
 
           <!-- Hover Dim -->
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition duration-500"></div>
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
 
           <!-- Centered Name on Hover -->
           <div class="absolute inset-0 flex items-center justify-center">
@@ -311,7 +245,7 @@
 
 
 {{-- activitions --}}
-<section id="a-activity" class="bg-white pt-24 pb-12">
+<section id="a-activity" class="fade-up bg-white pt-24 pb-12">
 
 <!-- Divider -->
 <div class="max-w-7xl mx-auto px-4">
@@ -337,7 +271,7 @@
       </p>
 
       <a href="{{ route('activities.index') }}" 
-        class="inline-block bg-black hover:bg-gray-900 text-white 
+        class="inline-block bg-blue-600 hover:bg-blue-700 text-white 
                 px-8 py-3 
                 rounded-md
                 shadow-md 
@@ -383,7 +317,7 @@
 </section>
 
  <!-- 🎭 EVENTS (Editorial Bento Style) -->
-<section id="a-events" class="bg-white pt-12 pb-24">
+<section id="a-events" class="fade-up bg-white pt-12 pb-24">
 
 <!-- Divider -->
 <div class="max-w-7xl mx-auto px-4">
@@ -458,7 +392,7 @@
             <!-- Button -->
             <div class="pt-4">
               <a href="{{ route('events.show', $event->id) }}"
-                 class="inline-block bg-black hover:bg-gray-900 text-white 
+                 class="inline-block bg-blue-600 hover:bg-blue-700 text-white 
                         px-6 py-2 
                         rounded-md
                         transition duration-300">
@@ -482,7 +416,7 @@
 </section>
 
 <!-- 🌍 ABOUT -->
-<section class="bg-white py-20">
+<section class="fade-up bg-white py-20">
   <div class="max-w-6xl mx-auto px-4 md:px-6">
 
     <!-- Centered Title -->

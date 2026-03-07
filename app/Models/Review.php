@@ -16,7 +16,9 @@ class Review extends Model
         'date',
         'rpic0',
         'rpic1',
-        'rpic2'
+        'rpic2',
+        'ip_address',
+        'user_fingerprint'
     ]; 
     public $timestamps = false;
 

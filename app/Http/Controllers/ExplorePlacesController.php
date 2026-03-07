@@ -122,6 +122,12 @@ class ExplorePlacesController extends Controller
 
     $ip = $request->ip();
     $email = $request->email;
+    
+    // Generate unique user fingerprint using multiple sources
+    // This creates a unique identifier even if IP changes
+    $userAgent = hash('sha256', $request->userAgent() ?? 'unknown');
+    $ipHash = hash('sha256', $ip);
+    $userFingerprint = hash('sha256', $userAgent . '|' . $ipHash . '|' . $email);
 
     // Check if the same email already reviewed this place
     $existingEmailReview = Review::where('place_id', $placeId)
@@ -131,6 +137,17 @@ class ExplorePlacesController extends Controller
     if ($existingEmailReview) {
         return back()->withErrors([
             'duplicate_review' => 'You have already reviewed this place using this email.'
+        ])->withInput();
+    }
+
+    // Check if the same user fingerprint already reviewed this place
+    $existingFingerprintReview = Review::where('place_id', $placeId)
+        ->where('user_fingerprint', $userFingerprint)
+        ->first();
+
+    if ($existingFingerprintReview) {
+        return back()->withErrors([
+            'duplicate_review' => 'Your device has already submitted a review for this place.'
         ])->withInput();
     }
 
@@ -173,6 +190,7 @@ class ExplorePlacesController extends Controller
     $review->feedback = $request->feedback;
     $review->date = now();
     $review->ip_address = $ip;
+    $review->user_fingerprint = $userFingerprint;
 
     if ($request->file('images')) {
         foreach ($request->file('images') as $index => $file) {
