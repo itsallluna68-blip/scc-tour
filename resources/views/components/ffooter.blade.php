@@ -2,7 +2,7 @@
 <footer class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16 mt-16">
   <div class="max-w-7xl mx-auto px-6">
 
-    <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
+    <div class="flex flex-col md:flex-row justify-between gap-12 mb-8">
 
       <div class="flex flex-col md:w-1/3">
         <div class="flex items-center gap-3 mb-4">
