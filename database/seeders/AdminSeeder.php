@@ -18,7 +18,7 @@ class AdminSeeder extends Seeder
         'fname' => 'Reighn',
         'mname' => 'C.',
         'lname' => 'Ortega',
-        'username' => 'Super Admin',
+        'username' => 'Superadmin',
         'password' => bcrypt('ann12345'), 
         'usertype' => 'Superadmin',
         'status' => '1',

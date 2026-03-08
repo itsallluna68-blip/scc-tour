@@ -76,7 +76,7 @@
 
     @unless($isStaff)
     <!-- Users - Only Super Admin -->
-    @if(auth()->check() && auth()->user()->usertype === 'Super Admin')
+    @if(auth()->check() && auth()->user()->usertype === 'Superadmin')
     <div x-data="{ open: false }" class="mt-4">
       <button 
         @click="open = !open"
