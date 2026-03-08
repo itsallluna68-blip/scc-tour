@@ -172,7 +172,5 @@ class UserController extends Controller
         return view('admin.list.partials.users_table', compact('users'));
     }
 
-        // Trash Search
-
 
 }

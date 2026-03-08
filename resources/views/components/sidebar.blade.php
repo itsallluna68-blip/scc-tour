@@ -152,35 +152,15 @@
          x-transition
          class="mt-2 ml-3 space-y-1">
 
-        <a href="#"
-           class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">
-            Activities
-        </a>
-
-        <a href="#"
-           class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">
-            Categories
-        </a>
-
-        <a href="#"
-           class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">
-            Places
-        </a>
-
-        <a href="#"
-           class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">
-            Events
-        </a>
-
         <!-- Users -->
-        {{-- <a href="{{ route('bin.users') }}"
+        <a href="{{ route('bin.users') }}"
           class="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-red-100 hover:text-red-700 transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
                   d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           <span>Users</span>
-        </a> --}}
+        </a>
       </div>
 
     @endunless

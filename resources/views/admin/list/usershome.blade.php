@@ -41,7 +41,7 @@
 
 {{-- Main Section --}}
 <main class="ml-56 mt-2 flex-1 p-6">
-  @if(auth()->check() && auth()->user()->usertype === 'Super Admin')
+  @if(auth()->check() && auth()->user()->usertype === 'Superadmin')
 
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-2xl font-semibold text-indigo-900">Users List</h2>
@@ -119,7 +119,7 @@
   @endif
 
   {{-- Modal --}}
-  @if(auth()->check() && auth()->user()->usertype === 'Super Admin')
+  @if(auth()->check() && auth()->user()->usertype === 'Superadmin')
   <div id="addUserModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
       <h3 class="text-xl font-semibold text-indigo-900 mb-4">Add User</h3>
@@ -277,7 +277,7 @@
 
 
 <script>
-@if(auth()->check() && auth()->user()->usertype === 'Super Admin')
+@if(auth()->check() && auth()->user()->usertype === 'Superadmin')
   const modal = document.getElementById("addUserModal"); 
   const idInput = document.getElementById("idInput"); 
   const idCheckbox = document.getElementById("idCheckbox"); 
