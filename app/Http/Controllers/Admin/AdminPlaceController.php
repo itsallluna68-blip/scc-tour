@@ -31,7 +31,6 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
-dd($request->all(), $request->file());
 
         $request->validate([
             'name' => 'required|string|max:255',
