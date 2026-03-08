@@ -45,7 +45,7 @@
 
     <div class="relative z-10 px-6 fade-up mt-8">
       <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight uppercase">
-      SAN CARLOS <span class="text-blue-400">TOURISM</span>
+      PADAYON BOGO! <span class="text-blue-400">TOURISM</span>
     </h1>
 
     <p class="text-sm md:text-base tracking-widest uppercase 
