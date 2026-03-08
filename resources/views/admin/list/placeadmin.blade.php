@@ -444,11 +444,20 @@
         @endforeach
     @endif
 </div>
-                                <p>replace main image:</p>
-                                <input type="file" name="main_image" class="w-full border rounded-md px-3 py-2 mt-2">
-                                <p>add gallery:</p>
+                                {{-- <p>replace main image:</p>
+                                <input type="file" name="main_image" class="w-full border rounded-md px-3 py-2 mt-2"> --}}
+<p>Replace main image:</p>
+<input type="file" name="main_image" accept="image/*"
+class="w-full border rounded-md px-3 py-2 mt-2">
+
+                                {{-- <p>add gallery:</p>
                                 <input type="file" name="images[]" multiple
-                                    class="w-full border rounded-md px-3 py-2 mt-2">
+                                    class="w-full border rounded-md px-3 py-2 mt-2"> --}}
+
+<p>Add gallery:</p>
+<input type="file" name="images[]" multiple accept="image/*"
+class="w-full border rounded-md px-3 py-2 mt-2">
+
                             </div>
 
                         </div>
