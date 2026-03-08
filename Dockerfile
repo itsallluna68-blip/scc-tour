@@ -30,6 +30,7 @@ EXPOSE 8080
 # Use $PORT provided by Railway; fall back to 8080
 ENV PORT 8080
 CMD php artisan config:clear && \
+    php artisan migrate --force --seed && \
     php artisan route:cache && \
     php artisan view:cache && \
     php -S 0.0.0.0:$PORT -t public 
