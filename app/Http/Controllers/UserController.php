@@ -13,7 +13,7 @@ class UserController extends Controller
     public function index(Request $request)
 {
     // Only Super Admin can access this
-    if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+    if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
         abort(403, 'Unauthorized access. Only Super Admin can manage users.');
     }
 
@@ -37,7 +37,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // Only Super Admin can create users
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can create users.');
         }
 
@@ -49,7 +49,7 @@ class UserController extends Controller
             // 'bdate' => 'required|date',
             'username' => 'required|string|max:255|unique:tblusers,username',
             'password' => 'required|string|min:8',
-            'usertype' => 'required|string|in:Super Admin,Admin,Staff',
+            'usertype' => 'required|string|in:Superadmin,Admin,Staff',
         ]);
 
         // Save user
@@ -69,7 +69,7 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         // Only Super Admin can update users
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can update users.');
         }
 
@@ -111,7 +111,7 @@ class UserController extends Controller
             public function destroy($id)
     {
         // Only Super Admin can delete users
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can delete users.');
         }
 
@@ -126,7 +126,7 @@ class UserController extends Controller
         public function trash(Request $request)
     {
         // Only Super Admin can view trash
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can view user trash.');
         }
 
@@ -149,7 +149,7 @@ class UserController extends Controller
         public function restore($id)
     {
         // Only Super Admin can restore users
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can restore users.');
         }
 
@@ -162,7 +162,7 @@ class UserController extends Controller
         public function search(Request $request)
     {
         // Only Super Admin can search users
-        if (Auth::check() && Auth::user()->usertype !== 'Super Admin') {
+        if (Auth::check() && Auth::user()->usertype !== 'Superadmin') {
             abort(403, 'Unauthorized access. Only Super Admin can search users.');
         }
 

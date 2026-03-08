@@ -33,4 +33,4 @@ CMD php artisan config:clear && \
     php artisan migrate --force --seed && \
     php artisan route:cache && \
     php artisan view:cache && \
-    php -S 0.0.0.0:$PORT -t public 
+    php -S 0.0.0.0:$PORT -t public
