@@ -66,8 +66,8 @@ class AdminPlaceController extends Controller
     // }
 
         if ($request->hasFile('main_image')) {
-        $image = $request->file('image');
-        $place->images = file_get_contents($image->getRealPath());
+        $mainFile = $request->file('main_image');
+        $place->images = file_get_contents($mainFile->getRealPath());
     }
             if ($request->hasFile('image')) {
         $image = $request->file('image');
