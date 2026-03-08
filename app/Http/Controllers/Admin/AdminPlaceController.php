@@ -33,8 +33,7 @@ class AdminPlaceController extends Controller
     {
     $request->validate([
         'name' => 'required|string|max:255',
-        'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
     ]);
 
     $place = new Exploreplaces();
@@ -55,16 +54,26 @@ class AdminPlaceController extends Controller
     // ✅ Store images as MEDIUMBLOB
     $imagesData = [];
 
-    if ($request->hasFile('main_image')) {
-        $mainFile = $request->file('main_image');
-        $imagesData[] = base64_encode(file_get_contents($mainFile)); // encode binary data
+    // if ($request->hasFile('main_image')) {
+    //     $mainFile = $request->file('main_image');
+    //     $imagesData[] = base64_encode(file_get_contents($mainFile)); // encode binary data
+    // }
+
+    // if ($request->hasFile('images')) {
+    //     foreach ($request->file('images') as $file) {
+    //         $imagesData[] = base64_encode(file_get_contents($file));
+    //     }
+    // }
+
+        if ($request->hasFile('main_image')) {
+        $image = $request->file('image');
+        $place->images = file_get_contents($image->getRealPath());
+    }
+            if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $place->images = file_get_contents($image->getRealPath());
     }
 
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $file) {
-            $imagesData[] = base64_encode(file_get_contents($file));
-        }
-    }
 
     // Save encoded images in the images field (as JSON)
     $place->images = json_encode($imagesData);
