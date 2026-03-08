@@ -31,54 +31,55 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+    ]);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+    $place = new Exploreplaces();
+    $place->name = $request->name;
+    $place->contact = $request->contact;
+    $place->email = $request->email;
+    $place->address = $request->address;
+    $place->description = $request->description;
+    $place->history = $request->history;
+    $place->transport = $request->transport;
+    $place->map_link = $request->map_link;
+    $place->opening_hours = $request->opening_hours;
+    $place->link1 = $request->link1;
+    $place->link2 = $request->link2;
+    $place->status = $request->has('status') ? 1 : 0;
+    $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        $place = new Exploreplaces();
-        $place->name = $request->name;
-        $place->contact = $request->contact;
-        $place->email = $request->email;
-        $place->address = $request->address;
-        $place->description = $request->description;
-        $place->history = $request->history;
-        $place->transport = $request->transport;
-        $place->map_link = $request->map_link;
-        $place->opening_hours = $request->opening_hours;
-        $place->link1 = $request->link1;
-        $place->link2 = $request->link2;
-        $place->status = $request->has('status') ? 1 : 0;
-        $place->is_popular = $request->has('is_popular') ? 1 : 0;
+    // ✅ Store images as MEDIUMBLOB
+    $imagesData = [];
 
-        // ✅ Main and gallery images
-        $imagePaths = [];
-
-        if ($request->hasFile('main_image')) {
-            $mainPath = $request->file('main_image')->store('places', 'public');
-            $imagePaths[] = $mainPath;
-        } // ← MISSING BRACKET FIXED HERE
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('places', 'public');
-            }
-        }
-
-        $place->images = $imagePaths;
-
-        // Save place
-        $place->save();
-
-        // Attach categories
-        if ($request->has('categories')) {
-            $place->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Place added successfully.');
+    if ($request->hasFile('main_image')) {
+        $mainFile = $request->file('main_image');
+        $imagesData[] = base64_encode(file_get_contents($mainFile)); // encode binary data
     }
+
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            $imagesData[] = base64_encode(file_get_contents($file));
+        }
+    }
+
+    // Save encoded images in the images field (as JSON)
+    $place->images = json_encode($imagesData);
+
+    // Save place
+    $place->save();
+
+    // Attach categories
+    if ($request->has('categories')) {
+        $place->categories()->sync($request->categories);
+    }
+
+    return redirect()->route('admin.places.index')
+        ->with('success', 'Place added successfully.');
+}
 
     // ================= UPDATE =================
     public function update(Request $request, $id)

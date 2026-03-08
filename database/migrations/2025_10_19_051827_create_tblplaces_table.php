@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('map_link', 200)->nullable();
             $table->text('opening_hours')->nullable();
             $table->boolean('is_popular')->default(false);
-            $table->text('images')->nullable();
+            $table->mediumBlob('images')->nullable();
         });
     }
 
