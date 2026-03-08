@@ -76,8 +76,8 @@ class AdminPlaceController extends Controller
 
 
     // Save encoded images in the images field (as JSON)
-    $place->images = json_encode($imagesData);
-
+    //$place->images = json_encode($imagesData);
+    $place->images= $imagesData[0] ?? null; // Store only the main image for now (or handle as needed)
     // Save place
     $place->save();
 

@@ -213,14 +213,14 @@
                                     class="w-32 h-32 mb-2 border rounded-md flex items-center justify-center text-gray-400 cursor-pointer">
                                     +
                                 </div>
-                                <input type="image" name="main_image" id="mainImageInput" accept="image/*"
+                                <input type="file" name="main_image" id="mainImageInput" accept="image/*"
                                     class="hidden">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium mb-1">Gallery Images</label>
                                 <div id="galleryPreview" class="flex flex-wrap gap-2 mb-2"></div>
-                                <input type="image" name="images[]" accept="image/*" multiple id="galleryInput"
+                                <input type="file" name="images[]" accept="image/*" multiple id="galleryInput"
                                     class="hidden">
                             </div>
 
