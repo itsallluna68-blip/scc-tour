@@ -11,7 +11,5 @@ class User extends Authenticatable
 
     protected $table = 'tblusers'; // Your custom table name
 
-    protected $fillable = [
-        'fname', 'mname', 'lname', 'username', 'password', 'usertype', 'status',
-    ];
+    protected $fillable = ['fname', 'mname', 'lname', 'username', 'password', 'usertype', 'status'];
 }
