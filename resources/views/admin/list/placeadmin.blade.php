@@ -112,7 +112,7 @@
                                     @endif
                                 </td>
                                 <td class="flex gap-2 justify-center">
-                                    <button onclick='openViewModal(@json($place))'
+                                    <button onclick='openEditModal(@json($place))'
                                         class="text-indigo-600 hover:text-indigo-800 text-lg">
                                         ✏️
                                     </button>
@@ -270,185 +270,151 @@
             </div>
 
             {{-- perfect monthsary 222 --}}
-            <!-- VIEW / EDIT PLACE MODAL -->
-            <div id="viewPlaceModal"
-                class="hidden fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            {{-- ai argument --}}
+            <!-- EDIT PLACE MODAL -->
+<div id="editPlaceModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
 
-                <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-lg overflow-y-auto max-h-[90vh]">
-                    <div class="text-right mt-6">
-                        <button type="button" onclick="closeViewModal()" class="text-red-500 text-sm">
-                            Close
-                        </button>
-                    </div>
+    <div class="bg-white rounded-lg p-6 w-full max-w-3xl shadow-lg overflow-y-auto max-h-[90vh]">
 
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-semibold text-indigo-900">Place Details</h3>
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-indigo-900">Edit Place</h3>
+            <button type="button" onclick="closeEditModal()" class="text-red-500 text-sm">Close</button>
+        </div>
 
-                        <div id="viewModeButtons">
-                            <button type="button" onclick="enableEditMode()"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1 rounded-md text-sm">
-                                Edit
-                            </button>
-                        </div>
+        <form id="editPlaceForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="id" id="edit_id">
 
-                        <div id="editModeButtons" class="hidden flex gap-2">
-                            <button type="submit" form="editPlaceForm"
-                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-md text-sm">
-                                Save
-                            </button>
+            <div class="space-y-4">
 
-                            <button type="button" onclick="cancelEditMode()"
-                                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-1 rounded-md text-sm">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-
-                    <form id="editPlaceForm" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-
-                        <input type="hidden" name="id" id="edit_id">
-
-                        <div class="space-y-4">
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Name</label>
-                                <input type="text" name="name" id="edit_name"
-                                    class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Address</label>
-                                <input type="text" name="address" id="edit_address"
-                                    class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Contact</label>
-                                    <input type="text" name="contact" id="edit_contact"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Email</label>
-                                    <input type="email" name="email" id="edit_email"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Web Link 1</label>
-                                    <input type="text" name="link1" id="edit_link1"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Web Link 2</label>
-                                    <input type="text" name="link2" id="edit_link2"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Map Link</label>
-                                    <input type="text" name="map_link" id="edit_map_link"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Opening Hours</label>
-                                    <input type="text" name="opening_hours" id="edit_opening_hours"
-                                        class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Description</label>
-                                <textarea name="description" id="edit_description" rows="4"
-                                    class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">History</label>
-                                <textarea name="history" id="edit_history" rows="4"
-                                    class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">How to Get There</label>
-                                <textarea name="transport" id="edit_transport" rows="4"
-                                    class="w-full border rounded-md px-3 py-2 bg-gray-100" readonly></textarea>
-                            </div>
-
-                            <div class="flex gap-6">
-                                <label class="flex items-center gap-2">
-                                    <input type="checkbox" name="status" id="edit_status" disabled>
-                                    <span>Active</span>
-                                </label>
-
-                                <label class="flex items-center gap-2">
-                                    <input type="checkbox" name="is_popular" id="edit_is_popular" disabled>
-                                    <span>Popular</span>
-                                </label>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-3">Categories</label>
-
-                                <div id="view_categories" class="flex flex-wrap gap-2"></div>
-
-                                <div id="edit_categories_list"
-                                    class="hidden grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50 mt-2">
-                                    @foreach($categories as $category)
-                                        <label
-                                            class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
-                                            <input type="checkbox" name="categories[]" value="{{ $category->cid }}"
-                                                class="edit-category-checkbox w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                            <span class="text-sm font-medium text-gray-700">{{ $category->category }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            {{-- IMAGE PREVIEW --}}
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Photos</label>
-
-                                {{-- fffuuuuuuuuuu 224 --}}
-                                <div id="editGalleryPreview" class="flex flex-wrap gap-2"></div>
-                                <input type="file" name="main_image" id="editMainImageInput" class="hidden">
-                                <input type="file" name="images[]" id="editGalleryInput" accept="image/*" multiple
-                                    class="hidden">
-
-
-                                <div id="view_images" class="flex flex-wrap gap-3">
-                                    {{-- // Images will be loaded here dynamically with JS when modal opens
-                                     --}}
-                                
-                                </div>
-                                {{-- <p>replace main image:</p>
-                                <input type="file" name="main_image" class="w-full border rounded-md px-3 py-2 mt-2">
-                                --}}
-                                <p>Replace main image:</p>
-                                <input type="file" name="main_image" accept="image/*"
-                                    class="w-full border rounded-md px-3 py-2 mt-2">
-
-                                {{-- <p>add gallery:</p>
-                                <input type="file" name="images[]" multiple
-                                    class="w-full border rounded-md px-3 py-2 mt-2"> --}}
-
-                                <p>Add gallery:</p>
-                                <input type="file" name="images[]" multiple accept="image/*"
-                                    class="w-full border rounded-md px-3 py-2 mt-2">
-
-                            </div>
-
-                        </div>
-                    </form>
-
+                <div>
+                    <label class="block text-sm font-medium mb-1">Name</label>
+                    <input type="text" name="name" id="edit_name"
+                           class="w-full border rounded-md px-3 py-2">
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Address</label>
+                    <input type="text" name="address" id="edit_address"
+                           class="w-full border rounded-md px-3 py-2">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Contact</label>
+                        <input type="text" name="contact" id="edit_contact"
+                               class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Email</label>
+                        <input type="email" name="email" id="edit_email"
+                               class="w-full border rounded-md px-3 py-2">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Web Link 1</label>
+                        <input type="text" name="link1" id="edit_link1"
+                               class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Web Link 2</label>
+                        <input type="text" name="link2" id="edit_link2"
+                               class="w-full border rounded-md px-3 py-2">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Map Link</label>
+                    <input type="text" name="map_link" id="edit_map_link"
+                           class="w-full border rounded-md px-3 py-2">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Opening Hours</label>
+                    <input type="text" name="opening_hours" id="edit_opening_hours"
+                           class="w-full border rounded-md px-3 py-2">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <textarea name="description" id="edit_description" rows="4"
+                              class="w-full border rounded-md px-3 py-2"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">History</label>
+                    <textarea name="history" id="edit_history" rows="4"
+                              class="w-full border rounded-md px-3 py-2"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">How to Get There</label>
+                    <textarea name="transport" id="edit_transport" rows="4"
+                              class="w-full border rounded-md px-3 py-2"></textarea>
+                </div>
+
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="status" id="edit_status">
+                        <span>Active</span>
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="is_popular" id="edit_is_popular">
+                        <span>Popular</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-3">Categories</label>
+                    <div id="edit_categories_list" class="grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50">
+                        @foreach($categories as $category)
+                            <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
+                                <input type="checkbox" name="categories[]" value="{{ $category->cid }}"
+                                       class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <span class="text-sm font-medium text-gray-700">{{ $category->category }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- IMAGE UPLOAD -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Photos</label>
+
+                    <div id="view_images" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Existing images will be loaded here via JS -->
+                    </div>
+
+                    <p>Replace main image:</p>
+                    <input type="file" name="main_image" accept="image/*"
+                           class="w-full border rounded-md px-3 py-2 mt-2">
+
+                    <p>Add gallery:</p>
+                    <input type="file" name="images[]" multiple accept="image/*"
+                           class="w-full border rounded-md px-3 py-2 mt-2">
+                </div>
+
             </div>
+
+            <!-- SAVE & CANCEL -->
+            <div class="sticky bottom-0 bg-white pt-4 border-t flex justify-end gap-2 px-6 mt-4">
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
+                    Save
+                </button>
+                <button type="button" onclick="closeEditModal()"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 
         </main>
@@ -472,181 +438,56 @@
         }
 
         // perfect monsthsary
-        //  VEIW / EDIT MODAL
+        
         let originalData = null;
 
-        function openViewModal(place) {
+// ai argument EDIT MODAL
+        function openEditModal(place) {
+    const modal = document.getElementById('editPlaceModal');
+    modal.classList.remove('hidden');
 
-            originalData = place;
+    const form = document.getElementById('editPlaceForm');
+    form.action = `/admin/places/${place.id}`;
 
-            const modal = document.getElementById('viewPlaceModal');
-            modal.classList.remove('hidden');
+    document.getElementById('edit_id').value = place.id;
+    document.getElementById('edit_name').value = place.name ?? '';
+    document.getElementById('edit_address').value = place.address ?? '';
+    document.getElementById('edit_contact').value = place.contact ?? '';
+    document.getElementById('edit_email').value = place.email ?? '';
+    document.getElementById('edit_link1').value = place.link1 ?? '';
+    document.getElementById('edit_link2').value = place.link2 ?? '';
+    document.getElementById('edit_map_link').value = place.map_link ?? '';
+    document.getElementById('edit_opening_hours').value = place.opening_hours ?? '';
+    document.getElementById('edit_description').value = place.description ?? '';
+    document.getElementById('edit_history').value = place.history ?? '';
+    document.getElementById('edit_transport').value = place.transport ?? '';
 
-            const form = document.getElementById('editPlaceForm');
-            form.action = `/admin/places/${place.id}`;
+    document.getElementById('edit_status').checked = place.status == 1;
+    document.getElementById('edit_is_popular').checked = place.is_popular == 1;
 
-            document.getElementById('edit_id').value = place.id;
-            document.getElementById('edit_name').value = place.name ?? '';
-            document.getElementById('edit_address').value = place.address ?? '';
-            document.getElementById('edit_contact').value = place.contact ?? '';
-            document.getElementById('edit_email').value = place.email ?? '';
-            document.getElementById('edit_link1').value = place.link1 ?? '';
-            document.getElementById('edit_link2').value = place.link2 ?? '';
-            document.getElementById('edit_map_link').value = place.map_link ?? '';
-            document.getElementById('edit_opening_hours').value = place.opening_hours ?? '';
-            document.getElementById('edit_description').value = place.description ?? '';
-            document.getElementById('edit_history').value = place.history ?? '';
-            document.getElementById('edit_transport').value = place.transport ?? '';
+    // Categories
+    document.querySelectorAll('#edit_categories_list input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = place.categories?.some(cat => cat.cid == checkbox.value);
+    });
 
-            document.getElementById('edit_status').checked = place.status == 1;
-            document.getElementById('edit_is_popular').checked = place.is_popular == 1;
-
-            // Load categories (view mode)
-            const categoryContainer = document.getElementById('view_categories');
-            categoryContainer.innerHTML = '';
-
-            if (place.categories) {
-                place.categories.forEach(cat => {
-                    categoryContainer.innerHTML += `
-                <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
-                    ${cat.category}
-                </span>
+    // Images
+    const imageContainer = document.getElementById('view_images');
+    imageContainer.innerHTML = '';
+    if (place.images) {
+        place.images.forEach((img, index) => {
+            imageContainer.innerHTML += `
+                <div class="relative w-24 h-24">
+                    <img src="/storage/${img}" class="w-24 h-24 object-cover rounded-md border">
+                    ${index === 0 ? `<span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">Main</span>` : ''}
+                </div>
             `;
-                });
-            }
+        });
+    }
+}
 
-            // Preselect categories in edit checkboxes
-            const editList = document.getElementById('edit_categories_list');
-            if (editList) {
-                editList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = place.categories?.some(cat => cat.cid == checkbox.value);
-                });
-            }
-
-            // Load images
-            const imageContainer = document.getElementById('view_images');
-            imageContainer.innerHTML = '';
-
-            if (place.images) {
-                place.images.forEach((img, index) => {
-                    imageContainer.innerHTML += `
-            <div class="relative w-24 h-24">
-                <img src="/storage/${img}" 
-                     class="w-24 h-24 object-cover rounded-md border">
-
-                ${index === 0 ? `<span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">Main</span>` : ''}
-                
-                <button type="button"
-                        onclick="removeGalleryImage(${place.id}, '${img}', this)"
-                        class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
-                    ✕
-                </button>
-            </div>
-        `;
-                });
-            }
-
-            setViewMode();
-        }
-
-        function enableEditMode() {
-
-            // Make text inputs editable
-            document.querySelectorAll('#editPlaceForm input[type="text"], #editPlaceForm input[type="email"], #editPlaceForm textarea')
-                .forEach(el => {
-                    el.removeAttribute('readonly');
-                    el.classList.remove('bg-gray-100');
-                });
-
-            // Enable checkboxes
-            document.getElementById('edit_status').disabled = false;
-            document.getElementById('edit_is_popular').disabled = false;
-
-            // Enable file inputs
-            const mainImage = document.getElementById('edit_main_image');
-            const galleryImages = document.getElementById('edit_images');
-
-            if (mainImage) {
-                mainImage.disabled = false;
-                mainImage.classList.remove('bg-gray-100');
-            }
-
-            if (galleryImages) {
-                galleryImages.disabled = false;
-                galleryImages.classList.remove('bg-gray-100');
-            }
-
-            // Show category checkboxes
-            document.getElementById('view_categories').classList.add('hidden');
-            document.getElementById('edit_categories_list').classList.remove('hidden');
-
-            // Toggle buttons
-            document.getElementById('viewModeButtons').classList.add('hidden');
-            document.getElementById('editModeButtons').classList.remove('hidden');
-        }
-
-
-        function cancelEditMode() {
-
-            // Make text inputs readonly again
-            document.querySelectorAll('#editPlaceForm input[type="text"], #editPlaceForm input[type="email"], #editPlaceForm textarea')
-                .forEach(el => {
-                    el.setAttribute('readonly', true);
-                    el.classList.add('bg-gray-100');
-                });
-
-            // Disable checkboxes
-            document.getElementById('edit_status').disabled = true;
-            document.getElementById('edit_is_popular').disabled = true;
-
-            // Disable file inputs
-            const mainImage = document.getElementById('edit_main_image');
-            const galleryImages = document.getElementById('edit_images');
-
-            if (mainImage) {
-                mainImage.disabled = true;
-                mainImage.classList.add('bg-gray-100');
-            }
-
-            if (galleryImages) {
-                galleryImages.disabled = true;
-                galleryImages.classList.add('bg-gray-100');
-            }
-
-            // Show badges again
-            document.getElementById('edit_categories_list').classList.add('hidden');
-            document.getElementById('view_categories').classList.remove('hidden');
-
-            // Toggle buttons
-            document.getElementById('editModeButtons').classList.add('hidden');
-            document.getElementById('viewModeButtons').classList.remove('hidden');
-        }
-
-        function setViewMode() {
-
-            document.querySelectorAll('#editPlaceForm input, #editPlaceForm textarea')
-                .forEach(el => {
-                    if (el.id !== 'edit_id') {
-                        el.setAttribute('readonly', true);
-                        el.classList.add('bg-gray-100');
-                    }
-                });
-
-            document.getElementById('edit_status').disabled = true;
-            document.getElementById('edit_is_popular').disabled = true;
-
-            document.getElementById('view_categories').classList.remove('hidden');
-            document.getElementById('edit_categories_list').classList.add('hidden');
-
-            document.getElementById('edit_images').classList.add('hidden');
-
-            document.getElementById('viewModeButtons').classList.remove('hidden');
-            document.getElementById('editModeButtons').classList.add('hidden');
-        }
-
-        function closeViewModal() {
-            document.getElementById('viewPlaceModal').classList.add('hidden');
-        }
+        function closeEditModal() {
+    document.getElementById('editPlaceModal').classList.add('hidden');
+}
 
         // img prev
         const mainImageInput = document.getElementById('mainImageInput');
