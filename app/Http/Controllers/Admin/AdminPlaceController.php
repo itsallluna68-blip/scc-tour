@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Exploreplaces;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use Nette\Utils\Image as UtilsImage;
 
 class AdminPlaceController extends Controller
 {
@@ -51,8 +53,7 @@ class AdminPlaceController extends Controller
         $place->status = $request->has('status') ? 1 : 0;
         $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        // ✅ Store images as MEDIUMBLOB
-        $imagesData = [];
+        // $imagesData = [];
 
         // if ($request->hasFile('main_image')) {
         //     $mainFile = $request->file('main_image');
@@ -66,28 +67,78 @@ class AdminPlaceController extends Controller
         // }
 
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $place->images = file_get_contents($image->getRealPath());
-        }
+        // if ($request->hasFile('image')) {
+        //     $image = $request->file('image');
+        //     $place->images = file_get_contents($image->getRealPath());
+        // }
 
 
-        if ($request->hasFile('images')) {
-            $imageContents = [];
+        // if ($request->hasFile('images')) {
+        //     $imageContents = [];
 
-            if ($request->hasFile('main_image')) {
-                $mainFile = $request->file('main_image');
-                $imageContents[] = file_get_contents($mainFile->getRealPath());
-            }
+        //     if ($request->hasFile('main_image')) {
+        //         $mainFile = $request->file('main_image');
+        //         $imageContents[] = file_get_contents($mainFile->getRealPath());
+        //     }
 
-            foreach ($request->file('images') as $image) {
-                // Read the file content as binary
-                $imageContents[] = file_get_contents($image->getRealPath());
-            }
+        //     foreach ($request->file('images') as $image) {
+        //         // Read the file content as binary
+        //         $imageContents[] = file_get_contents($image->getRealPath());
+        //     }
 
-            // Serialize the array of images into one string
-            $place->images = serialize($imageContents);
-        }
+        //     // Serialize the array of images into one string
+        //     $place->images = serialize($imageContents);
+        // }
+
+//  IMAGE STORAGE USING INTERVENTION
+
+$imagesData = [
+    'main' => null,
+    'gallery' => []
+];
+
+// MAIN IMAGE
+if ($request->hasFile('main_image')) {
+
+    $file = $request->file('main_image');
+    $filename = time().'_main_'.uniqid().'.jpg';
+    $path = 'places/'.$filename;
+
+    $img = Image::make($file->getRealPath())
+        ->resize(1000, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })
+        ->encode('jpg', 70);
+
+    Storage::disk('public')->put($path, $img);
+
+    $imagesData['main'] = $path;
+}
+
+// GALLERY IMAGES
+if ($request->hasFile('images')) {
+
+    foreach ($request->file('images') as $file) {
+
+        $filename = time().'_gallery_'.uniqid().'.jpg';
+        $path = 'places/'.$filename;
+
+        $img = Image::make($file->getRealPath())
+            ->resize(800, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 60);
+
+        Storage::disk('public')->put($path, $img);
+
+        $imagesData['gallery'][] = $path;
+    }
+}
+$place->images = json_encode($imagesData);
+
+
 
         // Save encoded images in the images field (as JSON)
         //$place->images = json_encode($imagesData);
@@ -123,27 +174,73 @@ class AdminPlaceController extends Controller
         $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
         // ✅ Get existing images
-        $imagePaths = $place->images ?? [];
+        // $imagePaths = $place->images ?? [];
 
         // Replace main image
-        if ($request->hasFile('main_image')) {
-            $mainPath = $request->file('main_image')->store('places', 'public');
+        // if ($request->hasFile('main_image')) {
+        //     $mainPath = $request->file('main_image')->store('places', 'public');
 
-            if (count($imagePaths) > 0) {
-                $imagePaths[0] = $mainPath;
-            } else {
-                $imagePaths[] = $mainPath;
-            }
-        }
+        //     if (count($imagePaths) > 0) {
+        //         $imagePaths[0] = $mainPath;
+        //     } else {
+        //         $imagePaths[] = $mainPath;
+        //     }
+        // }
 
-        // Append gallery images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('places', 'public');
-            }
-        }
+        // // Append gallery images
+        // if ($request->hasFile('images')) {
+        //     foreach ($request->file('images') as $file) {
+        //         $imagePaths[] = $file->store('places', 'public');
+        //     }
+        // }
 
-        $place->images = $imagePaths;
+// IMAGE STORAGE USING INTERVENTION
+$imagesData = json_decode($place->images, true) ?? [
+    'main' => null,
+    'gallery' => []
+];
+
+// REPLACE MAIN IMAGE
+if ($request->hasFile('main_image')) {
+
+    $file = $request->file('main_image');
+    $filename = time().'_main_'.uniqid().'.jpg';
+    $path = 'places/'.$filename;
+
+    $img = Image::make($file->getRealPath())
+        ->resize(1000, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })
+        ->encode('jpg', 70);
+
+    Storage::disk('public')->put($path, $img);
+
+    $imagesData['main'] = $path;
+}
+
+// ADD GALLERY IMAGES
+if ($request->hasFile('images')) {
+
+    foreach ($request->file('images') as $file) {
+
+        $filename = time().'_gallery_'.uniqid().'.jpg';
+        $path = 'places/'.$filename;
+
+        $img = Image::make($file->getRealPath())
+            ->resize(800, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 60);
+
+        Storage::disk('public')->put($path, $img);
+
+        $imagesData['gallery'][] = $path;
+    }
+}
+
+        $place->images = json_encode($imagesData);
 
         $place->save();
 
@@ -157,28 +254,30 @@ class AdminPlaceController extends Controller
     }
 
     // remove image
-    public function removeImage(Request $request, $id)
-    {
-        $place = Exploreplaces::findOrFail($id);
+public function removeImage(Request $request, $id)
+{
+    $place = Exploreplaces::findOrFail($id);
 
-        $imageToRemove = $request->image;
+    $imageToRemove = $request->image;
 
-        $images = $place->images ?? [];
+    $images = json_decode($place->images, true);
 
-        // Remove from array
-        $updatedImages = array_filter($images, function ($img) use ($imageToRemove) {
+    if(isset($images['gallery'])) {
+
+        $images['gallery'] = array_filter($images['gallery'], function ($img) use ($imageToRemove) {
             return $img !== $imageToRemove;
         });
 
-        // Delete file from storage
-        if (Storage::disk('public')->exists($imageToRemove)) {
-            Storage::disk('public')->delete($imageToRemove);
-        }
-
-        // Reindex array
-        $place->images = array_values($updatedImages);
-        $place->save();
-
-        return response()->json(['success' => true]);
+        $images['gallery'] = array_values($images['gallery']);
     }
+
+    if (Storage::disk('public')->exists($imageToRemove)) {
+        Storage::disk('public')->delete($imageToRemove);
+    }
+
+    $place->images = json_encode($images);
+    $place->save();
+
+    return response()->json(['success' => true]);
+}
 }
