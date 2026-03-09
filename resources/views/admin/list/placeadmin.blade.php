@@ -428,16 +428,16 @@
                                             <div class="relative w-24 h-24">
 
                                                 {{-- IMAGE --}}
-                                                {{-- <img src="{{ asset('storage/' . $image) }}"
-                                                    class="w-24 h-24 object-cover rounded-md border"> --}}
+                                                <img src="{{ asset('storage/' . $image) }}"
+                                                    class="w-24 h-24 object-cover rounded-md border">
 
                                                 {{-- MAIN LABEL --}}
-                                                {{-- @if($index === 0)
+                                                @if($index === 0)
                                                     <span
                                                         class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
                                                         Main
                                                     </span>
-                                                @endif --}}
+                                                @endif
 
                                                 {{-- DELETE BUTTON (ALWAYS VISIBLE) --}}
                                                 <button type="button"
