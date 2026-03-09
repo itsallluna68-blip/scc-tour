@@ -428,8 +428,8 @@
                                             <div class="relative w-24 h-24">
 
                                                 {{-- IMAGE --}}
-                                                <img src="{{ asset('storage/' . $image) }}"
-                                                    class="w-24 h-24 object-cover rounded-md border">
+                                                {{-- <img src="{{ asset('storage/' . $image) }}"
+                                                    class="w-24 h-24 object-cover rounded-md border"> --}}
 
                                                 {{-- MAIN LABEL --}}
                                                 @if($index === 0)
