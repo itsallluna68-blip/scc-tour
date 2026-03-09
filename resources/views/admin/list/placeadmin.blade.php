@@ -220,7 +220,12 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1">Gallery Images</label>
                                 <div id="galleryPreview" class="flex flex-wrap gap-2 mb-2"></div>
-                                <input type="file" name="images[]" accept="image/*" multiple id="galleryInput"
+                                <input
+    type="file"
+    name="images[]"
+    id="galleryInput"
+    accept="image/*"
+    multiple
                                     class="hidden">
                             </div>
 
@@ -412,9 +417,15 @@
                                 <label class="block text-sm font-medium mb-1">Photos</label>
 
                                 {{-- fffuuuuuuuuuu 224 --}}
-                                <div id="galleryPreview" class="flex flex-wrap gap-2"></div>
+                                <div id="editGalleryPreview" class="flex flex-wrap gap-2"></div>
                                 <input type="file" name="main_image" id="mainImageInput" class="hidden">
-                                <input type="file" name="images[]" id="galleryInput" multiple class="hidden">
+                                <input
+    type="file"
+    name="images[]"
+    id="editGalleryInput"
+    accept="image/*"
+    multiple class="hidden">
+
 
                                <div id="view_images" class="flex flex-wrap gap-3">
     @if(!empty($place->images))
@@ -672,16 +683,21 @@ imageContainer.innerHTML += `
         }
 
         // img prev
-        const mainImageInput = document.getElementById('mainImageInput');
-        const mainImagePreview = document.getElementById('mainImagePreview');
-        const galleryInput = document.getElementById('galleryInput');
-        const galleryPreview = document.getElementById('galleryPreview');
+const mainImageInput = document.getElementById('mainImageInput');
+const mainImagePreview = document.getElementById('mainImagePreview');
 
-        let galleryFiles = [];
+const galleryInput = document.getElementById('galleryInput');
+const galleryPreview = document.getElementById('galleryPreview');
+
+const editGalleryInput = document.getElementById('editGalleryInput');
+const editGalleryPreview = document.getElementById('editGalleryPreview');
+
+let galleryFiles = [];
 
         // Main image preview
         mainImagePreview.onclick = () => mainImageInput.click();
-        mainImageInput.addEventListener('change', (e) => {
+        if (galleryInput) {
+    galleryInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -693,7 +709,7 @@ imageContainer.innerHTML += `
             };
             reader.readAsDataURL(file);
         });
-
+}
         // Gallery preview
         function renderGallery() {
             galleryPreview.innerHTML = '';

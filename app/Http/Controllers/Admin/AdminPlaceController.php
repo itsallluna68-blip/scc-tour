@@ -8,7 +8,6 @@ use App\Models\Exploreplaces;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
-use Nette\Utils\Image as UtilsImage;
 
 class AdminPlaceController extends Controller
 {
@@ -33,6 +32,8 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
+
+    
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
