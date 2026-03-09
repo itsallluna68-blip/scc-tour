@@ -45,7 +45,7 @@
                                   focus:border-indigo-500 transition">
                     @if(request('search'))
                         <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2
-                                       text-gray-400 hover:text-red-500 text-sm">
+                                           text-gray-400 hover:text-red-500 text-sm">
                             ✕
                         </button>
                     @endif
@@ -62,7 +62,7 @@
                     <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
                     <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
                 </select>
-                
+
 
             </form>
 
@@ -220,12 +220,7 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1">Gallery Images</label>
                                 <div id="galleryPreview" class="flex flex-wrap gap-2 mb-2"></div>
-                                <input
-    type="file"
-    name="images[]"
-    id="galleryInput"
-    accept="image/*"
-    multiple
+                                <input type="file" name="images[]" id="galleryInput" accept="image/*" multiple
                                     class="hidden">
                             </div>
 
@@ -246,9 +241,11 @@
                             {{-- cocogrove 4 devs 2-21 --}}
                             <div>
                                 <label class="block text-sm font-medium mb-3">Categories</label>
-                                <div id="add_categories_list" class="grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50">
+                                <div id="add_categories_list"
+                                    class="grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50">
                                     @foreach($categories as $category)
-                                        <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
+                                        <label
+                                            class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
                                             <input type="checkbox" name="categories[]" value="{{ $category->cid }}"
                                                 class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                             <span class="text-sm font-medium text-gray-700">{{ $category->category }}</span>
@@ -401,9 +398,11 @@
 
                                 <div id="view_categories" class="flex flex-wrap gap-2"></div>
 
-                                <div id="edit_categories_list" class="hidden grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50 mt-2">
+                                <div id="edit_categories_list"
+                                    class="hidden grid grid-cols-3 gap-2 p-4 border border-gray-300 rounded-md bg-gray-50 mt-2">
                                     @foreach($categories as $category)
-                                        <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
+                                        <label
+                                            class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition">
                                             <input type="checkbox" name="categories[]" value="{{ $category->cid }}"
                                                 class="edit-category-checkbox w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                             <span class="text-sm font-medium text-gray-700">{{ $category->category }}</span>
@@ -418,56 +417,53 @@
 
                                 {{-- fffuuuuuuuuuu 224 --}}
                                 <div id="editGalleryPreview" class="flex flex-wrap gap-2"></div>
-                                <input type="file" name="main_image" id="mainImageInput" class="hidden">
-                                <input
-    type="file"
-    name="images[]"
-    id="editGalleryInput"
-    accept="image/*"
-    multiple class="hidden">
+                                <input type="file" name="main_image" id="editMainImageInput" class="hidden">
+                                <input type="file" name="images[]" id="editGalleryInput" accept="image/*" multiple
+                                    class="hidden">
 
 
-                               <div id="view_images" class="flex flex-wrap gap-3">
-    @if(!empty($place->images))
-        @foreach($place->images as $index => $image)
-            <div class="relative w-24 h-24">
+                                <div id="view_images" class="flex flex-wrap gap-3">
+                                    {{-- @if(!empty($place->images))
+                                        @foreach($place->images as $index => $image) --}}
+                                            <div class="relative w-24 h-24">
 
-                {{-- IMAGE --}}
-                <img src="{{ asset('storage/' . $image) }}"
-                     class="w-24 h-24 object-cover rounded-md border">
+                                                {{-- IMAGE --}}
+                                                <img src="{{ asset('storage/' . $image) }}"
+                                                    class="w-24 h-24 object-cover rounded-md border">
 
-                {{-- MAIN LABEL --}}
-                @if($index === 0)
-                    <span
-                        class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
-                        Main
-                    </span>
-                @endif
+                                                {{-- MAIN LABEL --}}
+                                                @if($index === 0)
+                                                    <span
+                                                        class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
+                                                        Main
+                                                    </span>
+                                                @endif
 
-                {{-- DELETE BUTTON (ALWAYS VISIBLE) --}}
-                <button type="button"
-                        onclick="removeGalleryImage('{{ $place->id }}','{{ $image }}')"
-                        class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
-                    ✕
-                </button>
+                                                {{-- DELETE BUTTON (ALWAYS VISIBLE) --}}
+                                                <button type="button"
+                                                    onclick="removeGalleryImage('{{ $place->id }}','{{ $image }}')"
+                                                    class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
+                                                    ✕
+                                                </button>
 
-            </div>
-        @endforeach
-    @endif
-</div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
                                 {{-- <p>replace main image:</p>
-                                <input type="file" name="main_image" class="w-full border rounded-md px-3 py-2 mt-2"> --}}
-<p>Replace main image:</p>
-<input type="file" name="main_image" accept="image/*"
-class="w-full border rounded-md px-3 py-2 mt-2">
+                                <input type="file" name="main_image" class="w-full border rounded-md px-3 py-2 mt-2">
+                                --}}
+                                <p>Replace main image:</p>
+                                <input type="file" name="main_image" accept="image/*"
+                                    class="w-full border rounded-md px-3 py-2 mt-2">
 
                                 {{-- <p>add gallery:</p>
                                 <input type="file" name="images[]" multiple
                                     class="w-full border rounded-md px-3 py-2 mt-2"> --}}
 
-<p>Add gallery:</p>
-<input type="file" name="images[]" multiple accept="image/*"
-class="w-full border rounded-md px-3 py-2 mt-2">
+                                <p>Add gallery:</p>
+                                <input type="file" name="images[]" multiple accept="image/*"
+                                    class="w-full border rounded-md px-3 py-2 mt-2">
 
                             </div>
 
@@ -551,13 +547,13 @@ class="w-full border rounded-md px-3 py-2 mt-2">
             }
 
             // Load images
-     const imageContainer = document.getElementById('view_images');
-imageContainer.innerHTML = '';
+            const imageContainer = document.getElementById('view_images');
+            imageContainer.innerHTML = '';
 
-if (place.images) {
-    place.images.forEach((img, index) => {
+            if (place.images) {
+                place.images.forEach((img, index) => {
 
-imageContainer.innerHTML += `
+                    imageContainer.innerHTML += `
             <div class="relative w-24 h-24">
 
                 <img src="/storage/${img}" 
@@ -577,8 +573,8 @@ imageContainer.innerHTML += `
 
             </div>
         `;
-    });
-}
+                });
+            }
 
             setViewMode();
         }
@@ -683,23 +679,22 @@ imageContainer.innerHTML += `
         }
 
         // img prev
-const mainImageInput = document.getElementById('mainImageInput');
-const mainImagePreview = document.getElementById('mainImagePreview');
+        const mainImageInput = document.getElementById('mainImageInput');
+        const mainImagePreview = document.getElementById('mainImagePreview');
 
-const galleryInput = document.getElementById('galleryInput');
-const galleryPreview = document.getElementById('galleryPreview');
+        const galleryInput = document.getElementById('galleryInput');
+        const galleryPreview = document.getElementById('galleryPreview');
 
-const editGalleryInput = document.getElementById('editGalleryInput');
-const editGalleryPreview = document.getElementById('editGalleryPreview');
+        const editGalleryInput = document.getElementById('editGalleryInput');
+        const editGalleryPreview = document.getElementById('editGalleryPreview');
 
-let galleryFiles = [];
+        let galleryFiles = [];
 
         // Main image preview
-        mainImagePreview.onclick = () => mainImageInput.click();
-        if (galleryInput) {
-    galleryInput.addEventListener('change', (e) => {
+        mainImageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = (ev) => {
                 mainImagePreview.style.backgroundImage = `url(${ev.target.result})`;
@@ -707,9 +702,10 @@ let galleryFiles = [];
                 mainImagePreview.style.backgroundPosition = 'center';
                 mainImagePreview.innerText = '';
             };
+
             reader.readAsDataURL(file);
         });
-}
+
         // Gallery preview
         function renderGallery() {
             galleryPreview.innerHTML = '';
@@ -764,23 +760,23 @@ let galleryFiles = [];
         // remove image
         function removeGalleryImage(placeId, imagePath, btn) {
 
-    if (!confirm("Delete this image?")) return;
+            if (!confirm("Delete this image?")) return;
 
-    fetch(`/admin/places/${placeId}/remove-image`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ image: imagePath })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            btn.closest('.relative').remove();
+            fetch(`/admin/places/${placeId}/remove-image`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ image: imagePath })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.closest('.relative').remove();
+                    }
+                });
         }
-    });
-}
     </script>
 
 </body>

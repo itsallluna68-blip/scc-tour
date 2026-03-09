@@ -32,11 +32,13 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
+        dd($request->all(), $request->file());
 
-    
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $place = new Exploreplaces();
@@ -91,53 +93,53 @@ class AdminPlaceController extends Controller
         //     $place->images = serialize($imageContents);
         // }
 
-//  IMAGE STORAGE USING INTERVENTION
+        //  IMAGE STORAGE USING INTERVENTION
 
-$imagesData = [
-    'main' => null,
-    'gallery' => []
-];
+        $imagesData = [
+            'main' => null,
+            'gallery' => []
+        ];
 
-// MAIN IMAGE
-if ($request->hasFile('main_image')) {
+        // MAIN IMAGE
+        if ($request->hasFile('main_image')) {
 
-    $file = $request->file('main_image');
-    $filename = time().'_main_'.uniqid().'.jpg';
-    $path = 'places/'.$filename;
+            $file = $request->file('main_image');
+            $filename = time() . '_main_' . uniqid() . '.jpg';
+            $path = 'places/' . $filename;
 
-    $img = Image::make($file->getRealPath())
-        ->resize(1000, null, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })
-        ->encode('jpg', 70);
+            $img = Image::make($file->getRealPath())
+                ->resize(1000, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('jpg', 70);
 
-    Storage::disk('public')->put($path, $img);
+            Storage::disk('public')->put($path, $img);
 
-    $imagesData['main'] = $path;
-}
+            $imagesData['main'] = $path;
+        }
 
-// GALLERY IMAGES
-if ($request->hasFile('images')) {
+        // GALLERY IMAGES
+        if ($request->hasFile('images')) {
 
-    foreach ($request->file('images') as $file) {
+            foreach ($request->file('images') as $file) {
 
-        $filename = time().'_gallery_'.uniqid().'.jpg';
-        $path = 'places/'.$filename;
+                $filename = time() . '_gallery_' . uniqid() . '.jpg';
+                $path = 'places/' . $filename;
 
-        $img = Image::make($file->getRealPath())
-            ->resize(800, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 60);
+                $img = Image::make($file->getRealPath())
+                    ->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })
+                    ->encode('jpg', 60);
 
-        Storage::disk('public')->put($path, $img);
+                Storage::disk('public')->put($path, $img);
 
-        $imagesData['gallery'][] = $path;
-    }
-}
-$place->images = json_encode($imagesData);
+                $imagesData['gallery'][] = $path;
+            }
+        }
+        $place->images = json_encode($imagesData);
 
 
 
@@ -195,51 +197,51 @@ $place->images = json_encode($imagesData);
         //     }
         // }
 
-// IMAGE STORAGE USING INTERVENTION
-$imagesData = json_decode($place->images, true) ?? [
-    'main' => null,
-    'gallery' => []
-];
+        // IMAGE STORAGE USING INTERVENTION
+        $imagesData = json_decode($place->images, true) ?? [
+            'main' => null,
+            'gallery' => []
+        ];
 
-// REPLACE MAIN IMAGE
-if ($request->hasFile('main_image')) {
+        // REPLACE MAIN IMAGE
+        if ($request->hasFile('main_image')) {
 
-    $file = $request->file('main_image');
-    $filename = time().'_main_'.uniqid().'.jpg';
-    $path = 'places/'.$filename;
+            $file = $request->file('main_image');
+            $filename = time() . '_main_' . uniqid() . '.jpg';
+            $path = 'places/' . $filename;
 
-    $img = Image::make($file->getRealPath())
-        ->resize(1000, null, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })
-        ->encode('jpg', 70);
+            $img = Image::make($file->getRealPath())
+                ->resize(1000, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('jpg', 70);
 
-    Storage::disk('public')->put($path, $img);
+            Storage::disk('public')->put($path, $img);
 
-    $imagesData['main'] = $path;
-}
+            $imagesData['main'] = $path;
+        }
 
-// ADD GALLERY IMAGES
-if ($request->hasFile('images')) {
+        // ADD GALLERY IMAGES
+        if ($request->hasFile('images')) {
 
-    foreach ($request->file('images') as $file) {
+            foreach ($request->file('images') as $file) {
 
-        $filename = time().'_gallery_'.uniqid().'.jpg';
-        $path = 'places/'.$filename;
+                $filename = time() . '_gallery_' . uniqid() . '.jpg';
+                $path = 'places/' . $filename;
 
-        $img = Image::make($file->getRealPath())
-            ->resize(800, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 60);
+                $img = Image::make($file->getRealPath())
+                    ->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })
+                    ->encode('jpg', 60);
 
-        Storage::disk('public')->put($path, $img);
+                Storage::disk('public')->put($path, $img);
 
-        $imagesData['gallery'][] = $path;
-    }
-}
+                $imagesData['gallery'][] = $path;
+            }
+        }
 
         $place->images = json_encode($imagesData);
 
@@ -255,30 +257,30 @@ if ($request->hasFile('images')) {
     }
 
     // remove image
-public function removeImage(Request $request, $id)
-{
-    $place = Exploreplaces::findOrFail($id);
+    public function removeImage(Request $request, $id)
+    {
+        $place = Exploreplaces::findOrFail($id);
 
-    $imageToRemove = $request->image;
+        $imageToRemove = $request->image;
 
-    $images = json_decode($place->images, true);
+        $images = json_decode($place->images, true);
 
-    if(isset($images['gallery'])) {
+        if (isset($images['gallery'])) {
 
-        $images['gallery'] = array_filter($images['gallery'], function ($img) use ($imageToRemove) {
-            return $img !== $imageToRemove;
-        });
+            $images['gallery'] = array_filter($images['gallery'], function ($img) use ($imageToRemove) {
+                return $img !== $imageToRemove;
+            });
 
-        $images['gallery'] = array_values($images['gallery']);
+            $images['gallery'] = array_values($images['gallery']);
+        }
+
+        if (Storage::disk('public')->exists($imageToRemove)) {
+            Storage::disk('public')->delete($imageToRemove);
+        }
+
+        $place->images = json_encode($images);
+        $place->save();
+
+        return response()->json(['success' => true]);
     }
-
-    if (Storage::disk('public')->exists($imageToRemove)) {
-        Storage::disk('public')->delete($imageToRemove);
-    }
-
-    $place->images = json_encode($images);
-    $place->save();
-
-    return response()->json(['success' => true]);
-}
 }
