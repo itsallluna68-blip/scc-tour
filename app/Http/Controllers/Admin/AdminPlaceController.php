@@ -32,7 +32,7 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
-        dd($request->all(), $request->file());
+        // dd($request->all(), $request->file());
 
 
         $request->validate([
