@@ -45,7 +45,7 @@
                                   focus:border-indigo-500 transition">
                     @if(request('search'))
                         <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2
-                                           text-gray-400 hover:text-red-500 text-sm">
+                                                               text-gray-400 hover:text-red-500 text-sm">
                             ✕
                         </button>
                     @endif
@@ -424,30 +424,30 @@
 
                                 <div id="view_images" class="flex flex-wrap gap-3">
                                     {{-- @if(!empty($place->images))
-                                        @foreach($place->images as $index => $image) --}}
-                                            <div class="relative w-24 h-24">
+                                    @foreach($place->images as $index => $image) --}}
+                                    <div class="relative w-24 h-24">
 
-                                                {{-- IMAGE --}}
-                                                <img src="{{ asset('storage/' . $image) }}"
-                                                    class="w-24 h-24 object-cover rounded-md border">
+                                        {{-- IMAGE --}}
+                                        <img src="{{ asset('storage/' . $image) }}"
+                                            class="w-24 h-24 object-cover rounded-md border">
 
-                                                {{-- MAIN LABEL --}}
-                                                @if($index === 0)
-                                                    <span
-                                                        class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
-                                                        Main
-                                                    </span>
-                                                @endif
+                                        {{-- MAIN LABEL --}}
+                                        @if($index === 0)
+                                            <span
+                                                class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
+                                                Main
+                                            </span>
+                                        @endif
 
-                                                {{-- DELETE BUTTON (ALWAYS VISIBLE) --}}
-                                                <button type="button"
-                                                    onclick="removeGalleryImage('{{ $place->id }}','{{ $image }}')"
-                                                    class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
-                                                    ✕
-                                                </button>
+                                        {{-- DELETE BUTTON (ALWAYS VISIBLE) --}}
+                                        <button type="button"
+                                            onclick="removeGalleryImage('{{ $place->id }}','{{ $image }}')"
+                                            class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
+                                            ✕
+                                        </button>
 
-                                            </div>
-                                        {{-- @endforeach
+                                    </div>
+                                    {{-- @endforeach
                                     @endif --}}
                                 </div>
                                 {{-- <p>replace main image:</p>
@@ -547,18 +547,18 @@
             }
 
             // Load images
-           const imageContainer = document.getElementById('view_images');
-imageContainer.innerHTML = '';
+            const imageContainer = document.getElementById('view_images');
+            imageContainer.innerHTML = '';
 
-if (place.images) {
-    place.images.forEach((img, index) => {
-        imageContainer.innerHTML += `
+            if (place.images) {
+                place.images.forEach((img, index) => {
+                    imageContainer.innerHTML += `
             <div class="relative w-24 h-24">
                 <img src="/storage/${img}" 
                      class="w-24 h-24 object-cover rounded-md border">
 
                 ${index === 0 ? `<span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">Main</span>` : ''}
-
+                
                 <button type="button"
                         onclick="removeGalleryImage(${place.id}, '${img}', this)"
                         class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
@@ -566,8 +566,8 @@ if (place.images) {
                 </button>
             </div>
         `;
-    });
-}
+                });
+            }
 
             setViewMode();
         }
