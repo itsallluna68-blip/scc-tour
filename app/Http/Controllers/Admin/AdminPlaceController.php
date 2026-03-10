@@ -166,7 +166,7 @@ try {
         return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
     }
     }
-
+    
     // ================= UPDATE =================
     public function update(Request $request, $id)
     {
