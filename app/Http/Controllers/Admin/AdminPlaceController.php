@@ -37,8 +37,9 @@ class AdminPlaceController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp
+            max:10240',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $place = new Exploreplaces();
@@ -110,7 +111,7 @@ class AdminPlaceController extends Controller
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })
-            ->encode('jpg', 70);
+            ->encode('jpg', 75);
 
         $filename = time() . '_main_' . uniqid() . '.jpg';
         $path = 'places/' . $filename;
@@ -132,7 +133,7 @@ class AdminPlaceController extends Controller
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->encode('jpg', 60);
+                ->encode('jpg', 75);
 
             $filename = time() . '_gallery_' . uniqid() . '.jpg';
             $path = 'places/' . $filename;
@@ -218,7 +219,7 @@ class AdminPlaceController extends Controller
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })
-            ->encode('jpg', 70);
+            ->encode('jpg', 75);
 
         $filename = time() . '_main_' . uniqid() . '.jpg';
         $path = 'places/' . $filename;
@@ -240,7 +241,7 @@ class AdminPlaceController extends Controller
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->encode('jpg', 60);
+                ->encode('jpg', 75);
 
             $filename = time() . '_gallery_' . uniqid() . '.jpg';
             $path = 'places/' . $filename;
