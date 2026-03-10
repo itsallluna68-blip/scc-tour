@@ -2,12 +2,22 @@ FROM php:8.2-cli
 
 # 1. System dependencies + Node.js
 RUN apt-get update && apt-get install -y \
-    git unzip libpng-dev libonig-dev libxml2-dev zip curl gnupg \
+    git \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    curl \
+    gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
-# 2. PHP extensions
-RUN docker-php-ext-install gd pdo pdo_mysql
+# 2. Configure and install PHP extensions (GD + MySQL)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql
 
 # 3. Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -27,7 +37,6 @@ RUN npm install && npm run build
 EXPOSE 8080
 
 # 8. Startup command
-# Use $PORT provided by Railway; fall back to 8080
 ENV PORT 8080
 CMD php artisan config:clear && \
     php artisan migrate --force --seed && \
