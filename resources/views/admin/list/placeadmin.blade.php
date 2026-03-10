@@ -73,6 +73,7 @@
                         <tr>
                             <th class="p-3">ID</th>
                             <th class="p-3">Name</th>
+                            <th class="p-3">IMAGE</th>
                             <th class="p-3">Categories</th>
                             <th class="p-3">Contact</th>
                             <th class="p-3">Status</th>
@@ -85,6 +86,15 @@
                             <tr class="hover:bg-gray-100">
                                 <td>{{ $place->id }}</td>
                                 <td>{{ $place->name }}</td>
+<td class="p-3">
+    @php $imgs = json_decode($place->images, true); @endphp
+    @if(isset($imgs['main']))
+        <img src="{{ $imgs['main'] }}" class="w-12 h-12 object-cover rounded shadow-sm">
+    @else
+        <span class="text-gray-400">No Image</span>
+    @endif
+</td>
+
                                 <td class="p-3">
                                     @if($place->categories && $place->categories->count())
                                         <div class="flex flex-wrap gap-1">
@@ -256,10 +266,10 @@
                         </div>
 
                         <div class="sticky bottom-0 bg-white pt-4 border-t flex justify-end gap-2 px-6">
-                            <button type="submit"
-                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
-                                Save
-                            </button>
+                            <button type="submit" id="saveBtn" onclick="this.innerText='Uploading...'; this.classList.add('opacity-50')"
+    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
+    Save
+</button>
                             <button type="button" onclick="closePlaceModal()"
                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">
                                 Cancel
@@ -484,44 +494,39 @@ if (place.images) {
 
     // MAIN IMAGE
     if (place.images.main) {
+    imageContainer.innerHTML += `
+    <div class="relative w-24 h-24">
+        <img src="${place.images.main}" class="w-24 h-24 object-cover rounded-md border">
+
+        <span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1">
+            Main
+        </span>
+
+        <button type="button"
+            onclick="removeGalleryImage(${place.id}, '${place.images.main}', this)"
+            class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs">
+            ✕
+        </button>
+    </div>
+    `;
+}
+
+    // GALLERY
+ if (place.images.gallery) {
+    place.images.gallery.forEach(img => {
         imageContainer.innerHTML += `
         <div class="relative w-24 h-24">
-            <img src="/storage/${place.images.main}" class="w-24 h-24 object-cover rounded-md border">
-
-            <span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1">
-                Main
-            </span>
+            <img src="${img}" class="w-24 h-24 object-cover rounded-md border">
 
             <button type="button"
-                onclick="removeGalleryImage(${place.id}, '${place.images.main}', this)"
+                onclick="removeGalleryImage(${place.id}, '${img}', this)"
                 class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs">
                 ✕
             </button>
         </div>
         `;
-    }
-
-    // GALLERY
-    if (place.images.gallery) {
-
-        place.images.gallery.forEach(img => {
-
-            imageContainer.innerHTML += `
-            <div class="relative w-24 h-24">
-
-                <img src="/storage/${img}" class="w-24 h-24 object-cover rounded-md border">
-
-                <button type="button"
-                    onclick="removeGalleryImage(${place.id}, '${img}', this)"
-                    class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs">
-                    ✕
-                </button>
-
-            </div>
-            `;
-        });
-
-    }
+    });
+}
 }
         }
 

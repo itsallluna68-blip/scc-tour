@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Exploreplaces;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary; // The Cloudinary Facade
 
 class AdminPlaceController extends Controller
 {
@@ -32,266 +32,170 @@ class AdminPlaceController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
-        // dd($request->all(), $request->file());
-
-
         $request->validate([
             'name' => 'required|string|max:255',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp
-            max:10240',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
-        $place = new Exploreplaces();
-        $place->name = $request->name;
-        $place->contact = $request->contact;
-        $place->email = $request->email;
-        $place->address = $request->address;
-        $place->description = $request->description;
-        $place->history = $request->history;
-        $place->transport = $request->transport;
-        $place->map_link = $request->map_link;
-        $place->opening_hours = $request->opening_hours;
-        $place->link1 = $request->link1;
-        $place->link2 = $request->link2;
-        $place->status = $request->has('status') ? 1 : 0;
-        $place->is_popular = $request->has('is_popular') ? 1 : 0;
+        try {
+            $place = new Exploreplaces();
+            $place->name = $request->name;
+            $place->contact = $request->contact;
+            $place->email = $request->email;
+            $place->address = $request->address;
+            $place->description = $request->description;
+            $place->history = $request->history;
+            $place->transport = $request->transport;
+            $place->map_link = $request->map_link;
+            $place->opening_hours = $request->opening_hours;
+            $place->link1 = $request->link1;
+            $place->link2 = $request->link2;
+            $place->status = $request->has('status') ? 1 : 0;
+            $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        // $imagesData = [];
-        // if ($request->hasFile('main_image')) {
-        //     $mainFile = $request->file('main_image');
-        //     $imagesData[] = base64_encode(file_get_contents($mainFile)); // encode binary data
-        // }
+            $imagesData = ['main' => null, 'gallery' => []];
 
-        // if ($request->hasFile('images')) {
-        //     foreach ($request->file('images') as $file) {
-        //         $imagesData[] = base64_encode(file_get_contents($file));
-        //     }
-        // }
+            // MAIN IMAGE UPLOAD
+            if ($request->hasFile('main_image')) {
+                $img = Image::make($request->file('main_image')->getRealPath())
+                    ->orientate()
+                    ->resize(1200, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })->encode('jpg', 75);
 
+                // Uploading the processed stream to Cloudinary
+                $uploadedFile = Cloudinary::upload((string) $img->encode('data-url'), [
+                    'folder' => 'places'
+                ]);
+                $imagesData['main'] = $uploadedFile->getSecurePath();
+            }
 
-        // if ($request->hasFile('image')) {
-        //     $image = $request->file('image');
-        //     $place->images = file_get_contents($image->getRealPath());
-        // }
+            // GALLERY IMAGES UPLOAD
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $img = Image::make($file->getRealPath())
+                        ->orientate()
+                        ->resize(1000, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        })->encode('jpg', 70);
 
+                    $uploadedFile = Cloudinary::upload((string) $img->encode('data-url'), [
+                        'folder' => 'places/gallery'
+                    ]);
+                    $imagesData['gallery'][] = $uploadedFile->getSecurePath();
+                }
+            }
 
-        // if ($request->hasFile('images')) {
-        //     $imageContents = [];
+            $place->images = json_encode($imagesData);
+            $place->save();
 
-        //     if ($request->hasFile('main_image')) {
-        //         $mainFile = $request->file('main_image');
-        //         $imageContents[] = file_get_contents($mainFile->getRealPath());
-        //     }
+            if ($request->has('categories')) {
+                $place->categories()->sync($request->categories);
+            }
 
-        //     foreach ($request->file('images') as $image) {
-        //         // Read the file content as binary
-        //         $imageContents[] = file_get_contents($image->getRealPath());
-        //     }
+            return redirect()->route('admin.places.index')->with('success', 'Place added and synced to Cloud!');
 
-        //     // Serialize the array of images into one string
-        //     $place->images = serialize($imageContents);
-        // }
-
-        //  IMAGE STORAGE USING INTERVENTION
-
-        $imagesData = [
-            'main' => null,
-            'gallery' => []
-        ];
-
-        // MAIN IMAGE
-    if ($request->hasFile('main_image')) {
-        $file = $request->file('main_image');
-
-        // Intervention/Image resize & compress
-        $img = Image::make($file->getRealPath())
-            ->resize(1000, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 60);
-
-        $filename = time() . '_main_' . uniqid() . '.jpg';
-        $path = 'places/' . $filename;
-
-        // Save to storage/app/public/places
-        Storage::disk('public')->put($path, $img);
-
-        // Also save the original file using Laravel's store() (optional)
-        $imagesData['main'] = $path;
-    }
-
-
-        // GALLERY IMAGES
-     if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $file) {
-            // Intervention/Image resize & compress
-            $img = Image::make($file->getRealPath())
-                ->resize(800, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 60);
-
-            $filename = time() . '_gallery_' . uniqid() . '.jpg';
-            $path = 'places/' . $filename;
-
-            // Save to storage
-            Storage::disk('public')->put($path, $img);
-
-            // Save path to JSON gallery array
-            $imagesData['gallery'][] = $path;
+        } catch (\Exception $e) {
+            // This will show you exactly why an upload failed (e.g., wrong API keys)
+            return back()->withInput()->with('error', 'Cloudinary Error: ' . $e->getMessage());
         }
-        }
-        $place->images = json_encode($imagesData);
-
-
-
-        // Save encoded images in the images field (as JSON)
-        //$place->images = json_encode($imagesData);
-        // Save place
-        $place->save();
-
-        // Attach categories
-        if ($request->has('categories')) {
-            $place->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Place added successfully.');
     }
 
     // ================= UPDATE =================
     public function update(Request $request, $id)
     {
         $place = Exploreplaces::findOrFail($id);
+        $imagesData = json_decode($place->images, true) ?? ['main' => null, 'gallery' => []];
 
-        $place->name = $request->name;
-        $place->contact = $request->contact;
-        $place->email = $request->email;
-        $place->address = $request->address;
-        $place->description = $request->description;
-        $place->history = $request->history;
-        $place->transport = $request->transport;
-        $place->map_link = $request->map_link;
-        $place->opening_hours = $request->opening_hours;
-        $place->link1 = $request->link1;
-        $place->link2 = $request->link2;
-        $place->status = $request->has('status') ? 1 : 0;
-        $place->is_popular = $request->has('is_popular') ? 1 : 0;
+        try {
+            $place->name = $request->name;
+            $place->contact = $request->contact;
+            $place->email = $request->email;
+            $place->address = $request->address;
+            $place->description = $request->description;
+            $place->history = $request->history;
+            $place->transport = $request->transport;
+            $place->map_link = $request->map_link;
+            $place->opening_hours = $request->opening_hours;
+            $place->link1 = $request->link1;
+            $place->link2 = $request->link2;
+            $place->status = $request->has('status') ? 1 : 0;
+            $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        // ✅ Get existing images
-        // $imagePaths = $place->images ?? [];
+            if ($request->hasFile('main_image')) {
+                $img = Image::make($request->file('main_image')->getRealPath())
+                    ->orientate()
+                    ->resize(1200, null, function($c){ $c->aspectRatio(); })
+                    ->encode('jpg', 75);
+                
+                $uploaded = Cloudinary::upload((string) $img->encode('data-url'), ['folder' => 'places']);
+                $imagesData['main'] = $uploaded->getSecurePath();
+            }
 
-        // Replace main image
-        // if ($request->hasFile('main_image')) {
-        //     $mainPath = $request->file('main_image')->store('places', 'public');
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $img = Image::make($file->getRealPath())
+                        ->orientate()
+                        ->resize(1000, null, function($c){ $c->aspectRatio(); })
+                        ->encode('jpg', 70);
+                    
+                    $uploaded = Cloudinary::upload((string) $img->encode('data-url'), ['folder' => 'places/gallery']);
+                    $imagesData['gallery'][] = $uploaded->getSecurePath();
+                }
+            }
 
-        //     if (count($imagePaths) > 0) {
-        //         $imagePaths[0] = $mainPath;
-        //     } else {
-        //         $imagePaths[] = $mainPath;
-        //     }
-        // }
+            $place->images = json_encode($imagesData);
+            $place->save();
 
-        // // Append gallery images
-        // if ($request->hasFile('images')) {
-        //     foreach ($request->file('images') as $file) {
-        //         $imagePaths[] = $file->store('places', 'public');
-        //     }
-        // }
+            if ($request->has('categories')) {
+                $place->categories()->sync($request->categories);
+            }
 
-        // IMAGE STORAGE USING INTERVENTION
-        $imagesData = json_decode($place->images, true) ?? [
-            'main' => null,
-            'gallery' => []
-        ];
-
-        // REPLACE MAIN IMAGE
-    if ($request->hasFile('main_image')) {
-        $file = $request->file('main_image');
-
-        // Intervention/Image resize & compress
-        $img = Image::make($file->getRealPath())
-            ->resize(1000, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 60);
-
-        $filename = time() . '_main_' . uniqid() . '.jpg';
-        $path = 'places/' . $filename;
-
-        // Save to storage/app/public/places
-        Storage::disk('public')->put($path, $img);
-
-        // Also save the original file using Laravel's store() (optional)
-        $imagesData['main'] = $path;
+            return redirect()->route('admin.places.index')->with('success', 'Place updated in Cloud!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Update Error: ' . $e->getMessage());
+        }
     }
 
-
-        // ADD GALLERY IMAGES
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $file) {
-            // Intervention/Image resize & compress
-            $img = Image::make($file->getRealPath())
-                ->resize(800, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 60);
-
-            $filename = time() . '_gallery_' . uniqid() . '.jpg';
-            $path = 'places/' . $filename;
-
-            // Save to storage
-            Storage::disk('public')->put($path, $img);
-
-            // Save path to JSON gallery array
-            $imagesData['gallery'][] = $path;
-        }
-        }
-
-        $place->images = json_encode($imagesData);
-
-        $place->save();
-
-        // Sync categories
-        if ($request->has('categories')) {
-            $place->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Place updated successfully.');
-    }
-
-    // remove image
+    // ================= REMOVE IMAGE =================
     public function removeImage(Request $request, $id)
     {
         $place = Exploreplaces::findOrFail($id);
-
         $images = json_decode($place->images, true);
+        $url = $request->image; // Full Cloudinary URL
 
-        $imageToDelete = $request->image;
+        try {
+            // Extract the Folder/PublicID from the URL
+            // e.g. "https://res.cloudinary.com/demo/image/upload/v1/places/photo.jpg"
+            // segments will give us "places/photo"
+            $path = parse_url($url, PHP_URL_PATH);
+            $segments = explode('/', $path);
+            $filename = pathinfo(end($segments), PATHINFO_FILENAME);
+            $folder = $segments[count($segments) - 2];
+            
+            $publicId = $folder . '/' . $filename;
 
-        // remove from storage
-        Storage::disk('public')->delete($imageToDelete);
+            // Delete from Cloudinary servers
+            Cloudinary::destroy($publicId);
 
-        // remove from array
-        if ($images['main'] === $imageToDelete) {
-            $images['main'] = null;
+            // Update local DB JSON
+            if ($images['main'] === $url) {
+                $images['main'] = null;
+            }
+
+            if (!empty($images['gallery'])) {
+                $images['gallery'] = array_values(array_filter($images['gallery'], fn($img) => $img !== $url));
+            }
+
+            $place->images = json_encode($images);
+            $place->save();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-
-        if (!empty($images['gallery'])) {
-            $images['gallery'] = array_values(
-                array_filter($images['gallery'], fn($img) => $img !== $imageToDelete)
-            );
-        }
-
-        $place->images = json_encode($images);
-        $place->save();
-
-        return response()->json(['success' => true]);
     }
 }
