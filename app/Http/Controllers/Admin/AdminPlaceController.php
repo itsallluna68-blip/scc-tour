@@ -41,7 +41,7 @@ class AdminPlaceController extends Controller
             max:10240',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
-
+try {
         $place = new Exploreplaces();
         $place->name = $request->name;
         $place->contact = $request->contact;
@@ -161,6 +161,10 @@ class AdminPlaceController extends Controller
 
         return redirect()->route('admin.places.index')
             ->with('success', 'Place added successfully.');
+            } catch (\Exception $e) {
+        // This will catch Memory Limit, Permission, or Driver errors
+        return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+    }
     }
 
     // ================= UPDATE =================
