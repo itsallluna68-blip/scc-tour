@@ -102,31 +102,26 @@ class AdminPlaceController extends Controller
 
         // MAIN IMAGE
         if ($request->hasFile('main_image')) {
-// new line
-$imagesData['main'] = $request->file('main_image')->store('places', 'public');
-
             $file = $request->file('main_image');
             $filename = time() . '_main_' . uniqid() . '.jpg';
             $path = 'places/' . $filename;
 
+            // Resize / compress
             $img = Image::make($file->getRealPath())
                 ->resize(1000, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->encode('jpg', 70);
+                ->encode('jpg', 70); // 70% quality for lighter file
 
             Storage::disk('public')->put($path, $img);
-
             $imagesData['main'] = $path;
         }
 
+
         // GALLERY IMAGES
         if ($request->hasFile('images')) {
-
             foreach ($request->file('images') as $file) {
-// new line
-$imagesData['gallery'][] = $file->store('places', 'public');
                 $filename = time() . '_gallery_' . uniqid() . '.jpg';
                 $path = 'places/' . $filename;
 
@@ -135,10 +130,9 @@ $imagesData['gallery'][] = $file->store('places', 'public');
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->encode('jpg', 60);
+                    ->encode('jpg', 60); // lighter quality
 
                 Storage::disk('public')->put($path, $img);
-
                 $imagesData['gallery'][] = $path;
             }
         }
@@ -208,31 +202,26 @@ $imagesData['gallery'][] = $file->store('places', 'public');
 
         // REPLACE MAIN IMAGE
         if ($request->hasFile('main_image')) {
-// new line
-$imagesData['main'] = $request->file('main_image')->store('places', 'public');
             $file = $request->file('main_image');
             $filename = time() . '_main_' . uniqid() . '.jpg';
             $path = 'places/' . $filename;
 
+            // Resize / compress
             $img = Image::make($file->getRealPath())
                 ->resize(1000, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
-                ->encode('jpg', 70);
+                ->encode('jpg', 70); // 70% quality for lighter file
 
             Storage::disk('public')->put($path, $img);
-
             $imagesData['main'] = $path;
         }
 
+
         // ADD GALLERY IMAGES
         if ($request->hasFile('images')) {
-
             foreach ($request->file('images') as $file) {
-// new line
-$imagesData['gallery'][] = $file->store('places', 'public');
-
                 $filename = time() . '_gallery_' . uniqid() . '.jpg';
                 $path = 'places/' . $filename;
 
@@ -241,10 +230,9 @@ $imagesData['gallery'][] = $file->store('places', 'public');
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
-                    ->encode('jpg', 60);
+                    ->encode('jpg', 60); // lighter quality
 
                 Storage::disk('public')->put($path, $img);
-
                 $imagesData['gallery'][] = $path;
             }
         }
@@ -264,30 +252,30 @@ $imagesData['gallery'][] = $file->store('places', 'public');
 
     // remove image
     public function removeImage(Request $request, $id)
-{
-    $place = Exploreplaces::findOrFail($id);
+    {
+        $place = Exploreplaces::findOrFail($id);
 
-    $images = $place->images;
+        $images = json_decode($place->images, true);
 
-    $imageToDelete = $request->image;
+        $imageToDelete = $request->image;
 
-    // remove from storage
-    Storage::disk('public')->delete($imageToDelete);
+        // remove from storage
+        Storage::disk('public')->delete($imageToDelete);
 
-    // remove from array
-    if ($images['main'] === $imageToDelete) {
-        $images['main'] = null;
+        // remove from array
+        if ($images['main'] === $imageToDelete) {
+            $images['main'] = null;
+        }
+
+        if (!empty($images['gallery'])) {
+            $images['gallery'] = array_values(
+                array_filter($images['gallery'], fn($img) => $img !== $imageToDelete)
+            );
+        }
+
+        $place->images = json_encode($images);
+        $place->save();
+
+        return response()->json(['success' => true]);
     }
-
-    if (!empty($images['gallery'])) {
-        $images['gallery'] = array_values(
-            array_filter($images['gallery'], fn($img) => $img !== $imageToDelete)
-        );
-    }
-
-    $place->images = $images;
-    $place->save();
-
-    return response()->json(['success' => true]);
-}
 }
