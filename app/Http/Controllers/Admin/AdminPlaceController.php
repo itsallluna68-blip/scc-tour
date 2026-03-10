@@ -258,29 +258,30 @@ class AdminPlaceController extends Controller
 
     // remove image
     public function removeImage(Request $request, $id)
-    {
-        $place = Exploreplaces::findOrFail($id);
+{
+    $place = Exploreplaces::findOrFail($id);
 
-        $imageToRemove = $request->image;
+    $images = $place->images;
 
-        $images = json_decode($place->images, true);
+    $imageToDelete = $request->image;
 
-        if (isset($images['gallery'])) {
+    // remove from storage
+    Storage::disk('public')->delete($imageToDelete);
 
-            $images['gallery'] = array_filter($images['gallery'], function ($img) use ($imageToRemove) {
-                return $img !== $imageToRemove;
-            });
-
-            $images['gallery'] = array_values($images['gallery']);
-        }
-
-        if (Storage::disk('public')->exists($imageToRemove)) {
-            Storage::disk('public')->delete($imageToRemove);
-        }
-
-        $place->images = json_encode($images);
-        $place->save();
-
-        return response()->json(['success' => true]);
+    // remove from array
+    if ($images['main'] === $imageToDelete) {
+        $images['main'] = null;
     }
+
+    if (!empty($images['gallery'])) {
+        $images['gallery'] = array_values(
+            array_filter($images['gallery'], fn($img) => $img !== $imageToDelete)
+        );
+    }
+
+    $place->images = $images;
+    $place->save();
+
+    return response()->json(['success' => true]);
+}
 }

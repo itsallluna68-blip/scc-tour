@@ -472,19 +472,51 @@
                 checkbox.checked = place.categories?.some(cat => cat.cid == checkbox.value);
             });
 
-            // Images
-            const imageContainer = document.getElementById('view_images');
-            imageContainer.innerHTML = '';
-            if (place.images) {
-                place.images.forEach((img, index) => {
-                    imageContainer.innerHTML += `
-                <div class="relative w-24 h-24">
-                    <img src="/storage/${img}" class="w-24 h-24 object-cover rounded-md border">
-                    ${index === 0 ? `<span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">Main</span>` : ''}
-                </div>
+            // IMAGES
+const imageContainer = document.getElementById('view_images');
+imageContainer.innerHTML = '';
+
+if (place.images) {
+
+    // MAIN IMAGE
+    if (place.images.main) {
+        imageContainer.innerHTML += `
+        <div class="relative w-24 h-24 group">
+            <img src="/storage/${place.images.main}" class="w-24 h-24 object-cover rounded-md border">
+
+            <span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
+                Main
+            </span>
+
+            <button type="button"
+                onclick="removeGalleryImage(${place.id}, '${place.images.main}', this)"
+                class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90 hover:opacity-100">
+                ✕
+            </button>
+        </div>
+        `;
+    }
+
+    // GALLERY IMAGES
+    if (place.images.gallery) {
+        place.images.gallery.forEach((img) => {
+
+            imageContainer.innerHTML += `
+            <div class="relative w-24 h-24 group">
+
+                <img src="/storage/${img}" class="w-24 h-24 object-cover rounded-md border">
+
+                <button type="button"
+                    onclick="removeGalleryImage(${place.id}, '${img}', this)"
+                    class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90 hover:opacity-100">
+                    ✕
+                </button>
+
+            </div>
             `;
-                });
-            }
+        });
+    }
+}
         }
 
         function closeEditModal() {
