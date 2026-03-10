@@ -389,7 +389,6 @@
                                 <label class="block text-sm font-medium mb-1">Photos</label>
 
                                 <div id="view_images" class="flex flex-wrap gap-3 mb-2">
-                                    <!-- Existing images will be loaded here via JS -->
                                 </div>
 
                                 <p>Replace main image:</p>
@@ -478,43 +477,50 @@ imageContainer.innerHTML = '';
 
 if (place.images) {
 
+    // Convert JSON string to object
+    if (typeof place.images === "string") {
+        place.images = JSON.parse(place.images);
+    }
+
     // MAIN IMAGE
     if (place.images.main) {
         imageContainer.innerHTML += `
-        <div class="relative w-24 h-24 group">
+        <div class="relative w-24 h-24">
             <img src="/storage/${place.images.main}" class="w-24 h-24 object-cover rounded-md border">
 
-            <span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-tr-md">
+            <span class="absolute bottom-0 left-0 bg-indigo-600 text-white text-xs px-2 py-1">
                 Main
             </span>
 
             <button type="button"
                 onclick="removeGalleryImage(${place.id}, '${place.images.main}', this)"
-                class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90 hover:opacity-100">
+                class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs">
                 ✕
             </button>
         </div>
         `;
     }
 
-    // GALLERY IMAGES
+    // GALLERY
     if (place.images.gallery) {
-        place.images.gallery.forEach((img) => {
+
+        place.images.gallery.forEach(img => {
 
             imageContainer.innerHTML += `
-            <div class="relative w-24 h-24 group">
+            <div class="relative w-24 h-24">
 
                 <img src="/storage/${img}" class="w-24 h-24 object-cover rounded-md border">
 
                 <button type="button"
                     onclick="removeGalleryImage(${place.id}, '${img}', this)"
-                    class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90 hover:opacity-100">
+                    class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs">
                     ✕
                 </button>
 
             </div>
             `;
         });
+
     }
 }
         }
