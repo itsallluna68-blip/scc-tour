@@ -58,7 +58,6 @@ class AdminPlaceController extends Controller
         $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
         // $imagesData = [];
-
         // if ($request->hasFile('main_image')) {
         //     $mainFile = $request->file('main_image');
         //     $imagesData[] = base64_encode(file_get_contents($mainFile)); // encode binary data
