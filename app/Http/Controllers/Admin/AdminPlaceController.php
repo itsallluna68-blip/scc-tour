@@ -102,6 +102,8 @@ class AdminPlaceController extends Controller
 
         // MAIN IMAGE
         if ($request->hasFile('main_image')) {
+// new line
+$imagesData['main'] = $request->file('main_image')->store('places', 'public');
 
             $file = $request->file('main_image');
             $filename = time() . '_main_' . uniqid() . '.jpg';
@@ -123,7 +125,8 @@ class AdminPlaceController extends Controller
         if ($request->hasFile('images')) {
 
             foreach ($request->file('images') as $file) {
-
+// new line
+$imagesData['gallery'][] = $file->store('places', 'public');
                 $filename = time() . '_gallery_' . uniqid() . '.jpg';
                 $path = 'places/' . $filename;
 
@@ -205,7 +208,8 @@ class AdminPlaceController extends Controller
 
         // REPLACE MAIN IMAGE
         if ($request->hasFile('main_image')) {
-
+// new line
+$imagesData['main'] = $request->file('main_image')->store('places', 'public');
             $file = $request->file('main_image');
             $filename = time() . '_main_' . uniqid() . '.jpg';
             $path = 'places/' . $filename;
@@ -226,6 +230,8 @@ class AdminPlaceController extends Controller
         if ($request->hasFile('images')) {
 
             foreach ($request->file('images') as $file) {
+// new line
+$imagesData['gallery'][] = $file->store('places', 'public');
 
                 $filename = time() . '_gallery_' . uniqid() . '.jpg';
                 $path = 'places/' . $filename;
