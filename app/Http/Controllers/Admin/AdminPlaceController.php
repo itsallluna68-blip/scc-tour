@@ -101,40 +101,48 @@ class AdminPlaceController extends Controller
         ];
 
         // MAIN IMAGE
-        if ($request->hasFile('main_image')) {
-            $file = $request->file('main_image');
-            $filename = time() . '_main_' . uniqid() . '.jpg';
-            $path = 'places/' . $filename;
+    if ($request->hasFile('main_image')) {
+        $file = $request->file('main_image');
 
-            // Resize / compress
-            $img = Image::make($file->getRealPath())
-                ->resize(1000, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 70); // 70% quality for lighter file
+        // Intervention/Image resize & compress
+        $img = Image::make($file->getRealPath())
+            ->resize(1000, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 70);
 
-            Storage::disk('public')->put($path, $img);
-            $imagesData['main'] = $path;
-        }
+        $filename = time() . '_main_' . uniqid() . '.jpg';
+        $path = 'places/' . $filename;
+
+        // Save to storage/app/public/places
+        Storage::disk('public')->put($path, $img);
+
+        // Also save the original file using Laravel's store() (optional)
+        $imagesData['main'] = $path;
+    }
 
 
         // GALLERY IMAGES
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $filename = time() . '_gallery_' . uniqid() . '.jpg';
-                $path = 'places/' . $filename;
+     if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            // Intervention/Image resize & compress
+            $img = Image::make($file->getRealPath())
+                ->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('jpg', 60);
 
-                $img = Image::make($file->getRealPath())
-                    ->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->encode('jpg', 60); // lighter quality
+            $filename = time() . '_gallery_' . uniqid() . '.jpg';
+            $path = 'places/' . $filename;
 
-                Storage::disk('public')->put($path, $img);
-                $imagesData['gallery'][] = $path;
-            }
+            // Save to storage
+            Storage::disk('public')->put($path, $img);
+
+            // Save path to JSON gallery array
+            $imagesData['gallery'][] = $path;
+        }
         }
         $place->images = json_encode($imagesData);
 
@@ -201,40 +209,48 @@ class AdminPlaceController extends Controller
         ];
 
         // REPLACE MAIN IMAGE
-        if ($request->hasFile('main_image')) {
-            $file = $request->file('main_image');
-            $filename = time() . '_main_' . uniqid() . '.jpg';
-            $path = 'places/' . $filename;
+    if ($request->hasFile('main_image')) {
+        $file = $request->file('main_image');
 
-            // Resize / compress
-            $img = Image::make($file->getRealPath())
-                ->resize(1000, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 70); // 70% quality for lighter file
+        // Intervention/Image resize & compress
+        $img = Image::make($file->getRealPath())
+            ->resize(1000, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 70);
 
-            Storage::disk('public')->put($path, $img);
-            $imagesData['main'] = $path;
-        }
+        $filename = time() . '_main_' . uniqid() . '.jpg';
+        $path = 'places/' . $filename;
+
+        // Save to storage/app/public/places
+        Storage::disk('public')->put($path, $img);
+
+        // Also save the original file using Laravel's store() (optional)
+        $imagesData['main'] = $path;
+    }
 
 
         // ADD GALLERY IMAGES
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $filename = time() . '_gallery_' . uniqid() . '.jpg';
-                $path = 'places/' . $filename;
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $file) {
+            // Intervention/Image resize & compress
+            $img = Image::make($file->getRealPath())
+                ->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('jpg', 60);
 
-                $img = Image::make($file->getRealPath())
-                    ->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->encode('jpg', 60); // lighter quality
+            $filename = time() . '_gallery_' . uniqid() . '.jpg';
+            $path = 'places/' . $filename;
 
-                Storage::disk('public')->put($path, $img);
-                $imagesData['gallery'][] = $path;
-            }
+            // Save to storage
+            Storage::disk('public')->put($path, $img);
+
+            // Save path to JSON gallery array
+            $imagesData['gallery'][] = $path;
+        }
         }
 
         $place->images = json_encode($imagesData);
