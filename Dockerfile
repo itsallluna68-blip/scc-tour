@@ -38,7 +38,8 @@ EXPOSE 8080
 
 # 8. Startup command
 ENV PORT 8080
-CMD php artisan config:clear && \
+CMD php artisan storage:link && \
+    php artisan config:clear && \
     php artisan migrate --force --seed && \
     php artisan route:cache && \
     php artisan view:cache && \
