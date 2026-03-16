@@ -57,7 +57,7 @@
     </div>
     @endif
 
-    <div x-data="{ open: false }" class="mt-6">
+    {{-- <div x-data="{ open: false }" class="mt-6">
       <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-red-50 hover:text-red-700 transition">
         <div class="flex items-center gap-2">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -72,7 +72,7 @@
         <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Places</a>
         <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Events</a>
       </div>
-    </div>
+    </div> --}}
 
     <div class="mt-2">
       <a href="{{ route('monthlyvisits.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-800 transition">
