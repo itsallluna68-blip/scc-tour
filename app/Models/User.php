@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,9 +9,9 @@ class User extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'tblusers'; // ✅ use your custom table
+    protected $table = 'tblusers';
 
-    public $timestamps = false;    // ✅ disable created_at & updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'fname',
@@ -23,7 +24,6 @@ class User extends Authenticatable
         'status'
     ];
     protected $attributes = [
-    'status' => 1,
-];
-
+        'status' => 'active',
+    ];
 }

@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserHistory;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
-        // return view('admin/login');
         return response(view('admin.login'))
-        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-        ->header('Pragma', 'no-cache')
-        ->header('Expires', '0');
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function login(Request $request)
@@ -23,25 +23,40 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        // Add status check (optional but recommended)
         if (Auth::attempt([
             'username' => $credentials['username'],
             'password' => $credentials['password'],
-            'status'   => '1'
+            'status'   => 'active'
         ])) {
             $request->session()->regenerate();
+            UserHistory::create([
+                'user_type' => Auth::user()->usertype ?? 'admin',
+                'username' => Auth::user()->username,
+                'full_name' => Auth::user()->fname . ' ' . Auth::user()->lname,
+                'date_time' => now(),
+                'action_taken' => 'Logged in'
+            ]);
+
             return redirect('/admin/admindashboard');
         }
 
         return back()->withErrors([
             'login' => 'Invalid username or password.'
         ]);
-
-
     }
 
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            UserHistory::create([
+                'user_type' => Auth::user()->usertype ?? 'admin',
+                'username' => Auth::user()->username,
+                'full_name' => Auth::user()->fname . ' ' . Auth::user()->lname,
+                'date_time' => now(),
+                'action_taken' => 'Logged out'
+            ]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

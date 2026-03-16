@@ -58,6 +58,7 @@ class Exploreplaces extends Model
 
         );
     }
+    
     public function reviews()
     {
         return $this->hasMany(\App\Models\Review::class, 'place_id', 'id')

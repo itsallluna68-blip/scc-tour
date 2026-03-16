@@ -28,7 +28,6 @@ class AdminPlaceController extends Controller
         return view('admin.list.placeadmin', compact('places', 'categories'));
     }
 
-    // ================= STORE =================
     public function store(Request $request)
     {
         $request->validate([
@@ -51,13 +50,12 @@ class AdminPlaceController extends Controller
         $place->status = $request->has('status') ? 1 : 0;
         $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        // ✅ Main and gallery images
         $imagePaths = [];
 
         if ($request->hasFile('main_image')) {
             $mainPath = $request->file('main_image')->store('places', 'public');
             $imagePaths[] = $mainPath;
-        } // ← MISSING BRACKET FIXED HERE
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
@@ -66,20 +64,15 @@ class AdminPlaceController extends Controller
         }
 
         $place->images = $imagePaths;
-
-        // Save place
         $place->save();
 
-        // Attach categories
         if ($request->has('categories')) {
             $place->categories()->sync($request->categories);
         }
 
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Place added successfully.');
+        return redirect()->route('admin.places.index')->with('success', 'Place added successfully.');
     }
 
-    // ================= UPDATE =================
     public function update(Request $request, $id)
     {
         $place = Exploreplaces::findOrFail($id);
@@ -98,10 +91,8 @@ class AdminPlaceController extends Controller
         $place->status = $request->has('status') ? 1 : 0;
         $place->is_popular = $request->has('is_popular') ? 1 : 0;
 
-        // ✅ Get existing images
         $imagePaths = $place->images ?? [];
 
-        // Replace main image
         if ($request->hasFile('main_image')) {
             $mainPath = $request->file('main_image')->store('places', 'public');
 
@@ -112,7 +103,6 @@ class AdminPlaceController extends Controller
             }
         }
 
-        // Append gallery images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 $imagePaths[] = $file->store('places', 'public');
@@ -120,41 +110,49 @@ class AdminPlaceController extends Controller
         }
 
         $place->images = $imagePaths;
-
         $place->save();
 
-        // Sync categories
         if ($request->has('categories')) {
             $place->categories()->sync($request->categories);
         }
 
-        return redirect()->route('admin.places.index')
-            ->with('success', 'Place updated successfully.');
+        return redirect()->route('admin.places.index')->with('success', 'Place updated successfully.');
     }
 
-    // remove image
     public function removeImage(Request $request, $id)
-{
-    $place = Exploreplaces::findOrFail($id);
+    {
+        $place = Exploreplaces::findOrFail($id);
+        $imageToRemove = $request->image;
+        $images = $place->images ?? [];
 
-    $imageToRemove = $request->image;
+        $updatedImages = array_filter($images, function ($img) use ($imageToRemove) {
+            return $img !== $imageToRemove;
+        });
 
-    $images = $place->images ?? [];
+        if (Storage::disk('public')->exists($imageToRemove)) {
+            Storage::disk('public')->delete($imageToRemove);
+        }
 
-    // Remove from array
-    $updatedImages = array_filter($images, function ($img) use ($imageToRemove) {
-        return $img !== $imageToRemove;
-    });
+        $place->images = array_values($updatedImages);
+        $place->save();
 
-    // Delete file from storage
-    if (Storage::disk('public')->exists($imageToRemove)) {
-        Storage::disk('public')->delete($imageToRemove);
+        return response()->json(['success' => true]);
     }
 
-    // Reindex array
-    $place->images = array_values($updatedImages);
-    $place->save();
+    public function destroy($id)
+    {
+        $place = Exploreplaces::findOrFail($id);
 
-    return response()->json(['success' => true]);
-}
+        $images = $place->images ?? [];
+        foreach ($images as $img) {
+            if (Storage::disk('public')->exists($img)) {
+                Storage::disk('public')->delete($img);
+            }
+        }
+
+        $place->categories()->detach();
+        $place->delete();
+
+        return redirect()->route('admin.places.index')->with('success', 'Place deleted successfully.');
+    }
 }

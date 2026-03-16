@@ -5,3 +5,32 @@
 html {
   scroll-behavior: smooth;
 }
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.8s ease-out;
+}
+
+.fade-down {
+  opacity: 0;
+  transform: translateY(-50px);
+  transition: all 0.8s ease-out;
+}
+
+.fade-left {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: all 0.8s ease-out;
+}
+
+.fade-right {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: all 0.8s ease-out;
+}
+
+.fade-up.show, .fade-down.show, .fade-left.show, .fade-right.show {
+  opacity: 1;
+  transform: translate(0, 0);
+}

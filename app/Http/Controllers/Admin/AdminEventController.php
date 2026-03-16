@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Events;
+use Illuminate\Support\Facades\Storage;
 
 class AdminEventController extends Controller
 {
@@ -15,7 +16,7 @@ class AdminEventController extends Controller
 
         $events = Events::query()
             ->when($search, fn($query) => $query->where('events', 'like', "%$search%"))
-            ->when($request->filled('status') && in_array($status, ['0','1']), fn($query) => $query->where('status', $status))
+            ->when($request->filled('status') && in_array($status, ['0', '1']), fn($query) => $query->where('status', $status))
             ->orderBy('e_datetime', 'desc')
             ->get();
 
@@ -33,7 +34,7 @@ class AdminEventController extends Controller
             'e_link'     => 'nullable|string',
             'status'     => 'required|in:0,1',
             'pics'       => 'nullable|array',
-            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
+            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:6048',
         ]);
 
         $images = [];
@@ -57,8 +58,7 @@ class AdminEventController extends Controller
             'pics'       => $images,
         ]);
 
-        return redirect()->route('admin.events.index')
-                         ->with('success', 'Event added successfully.');
+        return redirect()->route('admin.events.index')->with('success', 'Event added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -72,15 +72,12 @@ class AdminEventController extends Controller
             'e_link'     => 'nullable|string',
             'status'     => 'required|in:0,1',
             'pics'       => 'nullable|array',
-            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
+            'pics.*'     => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:6048',
         ]);
 
         $event = Events::findOrFail($id);
-
-        // Start with existing images
         $images = $event->pics ?? [];
 
-        // Add any newly uploaded images
         if ($request->hasFile('pics')) {
             foreach ($request->file('pics') as $file) {
                 if ($file->isValid()) {
@@ -89,7 +86,6 @@ class AdminEventController extends Controller
             }
         }
 
-        // Update all fields including the merged image array
         $event->update([
             'events'     => $request->events,
             'e_info'     => $request->e_info,
@@ -101,7 +97,42 @@ class AdminEventController extends Controller
             'pics'       => $images,
         ]);
 
-        return redirect()->route('admin.events.index')
-                         ->with('success', 'Event updated successfully.');
+        return redirect()->route('admin.events.index')->with('success', 'Event updated successfully.');
+    }
+
+    public function removeImage(Request $request, $id)
+    {
+        $event = Events::findOrFail($id);
+        $imageToRemove = $request->image;
+        $pics = $event->pics ?? [];
+
+        $updated = array_filter($pics, function ($img) use ($imageToRemove) {
+            return $img !== $imageToRemove;
+        });
+
+        if (!empty($imageToRemove) && Storage::disk('public')->exists($imageToRemove)) {
+            Storage::disk('public')->delete($imageToRemove);
+        }
+
+        $event->pics = array_values($updated);
+        $event->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroy($id)
+    {
+        $event = Events::findOrFail($id);
+
+        $images = $event->pics ?? [];
+        foreach ($images as $img) {
+            if (Storage::disk('public')->exists($img)) {
+                Storage::disk('public')->delete($img);
+            }
+        }
+
+        $event->delete();
+
+        return redirect()->route('admin.events.index')->with('success', 'Event deleted successfully.');
     }
 }

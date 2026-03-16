@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ asset('image/scpng.png') }}" type="image/png">
     <title>Admin Dashboard</title>
-    @vite('resources/css/app.css')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/public.js'])
     <style>
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
@@ -55,17 +55,13 @@
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 font-sans text-gray-800 min-h-screen">
 
   <div class="flex">
-    {{-- Sidebar --}}
     @include('components.sidebar')
 
     <div class="flex-1 ml-48 pt-16 min-h-screen">
-      {{-- Header --}}
       @include('components.header')
 
-      {{-- MAIN DASHBOARD CONTENT --}}
       <main class="p-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen">
 
-        <!-- DASHBOARD HEADER -->
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
           <div>
             <h1 class="text-5xl font-black text-white mb-3 tracking-tight">Dashboard</h1>
@@ -77,10 +73,8 @@
           </div>
         </div>
 
-        <!-- STATS CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
 
-          <!-- Card: Tourist Spots -->
           <div class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade" style="animation-delay: 0s;">
             <div class="flex items-center justify-between mb-5">
               <div>
@@ -88,15 +82,12 @@
                 <h3 class="stat-value text-5xl font-black mt-2">{{ $touristCount ?? 0 }}</h3>
               </div>
               <div class="icon-badge bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 rounded-xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
+                <i data-lucide="map-pin" class="w-8 h-8 text-white"></i>
               </div>
             </div>
             <p class="text-slate-400 text-sm font-medium">Active locations</p>
           </div>
 
-          <!-- Card: Categories -->
           <div class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade" style="animation-delay: 0.1s;">
             <div class="flex items-center justify-between mb-5">
               <div>
@@ -104,15 +95,12 @@
                 <h3 class="stat-value green text-5xl font-black mt-2">{{ $categoryCount ?? 0 }}</h3>
               </div>
               <div class="icon-badge bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
+                <i data-lucide="layers" class="w-8 h-8 text-white"></i>
               </div>
             </div>
             <p class="text-slate-400 text-sm font-medium">Type categories</p>
           </div>
 
-          <!-- Card: Total Visits -->
           <div class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade" style="animation-delay: 0.2s;">
             <div class="flex items-center justify-between mb-5">
               <div>
@@ -120,15 +108,12 @@
                 <h3 class="stat-value yellow text-5xl font-black mt-2">{{ number_format($totalVisits ?? 0) }}</h3>
               </div>
               <div class="icon-badge bg-gradient-to-br from-amber-500 to-amber-600 p-4 rounded-xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-2.16-2.66c-.44-.53-1.25-.58-1.78-.15-.53.44-.58 1.25-.15 1.78l3 3.68c.41.53 1.21.58 1.77.14l3.74-4.77c.45-.59.35-1.45-.23-1.89-.59-.45-1.45-.35-1.89.23z"/>
-                </svg>
+                <i data-lucide="bar-chart-2" class="w-8 h-8 text-white"></i>
               </div>
             </div>
             <p class="text-slate-400 text-sm font-medium">All time visits</p>
           </div>
 
-          <!-- Card: Real-time Visits (This Month) -->
           <div id="realtimeCard" class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade relative overflow-hidden" style="animation-delay: 0.3s;">
             <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-500 to-red-600 opacity-10 rounded-full -mr-20 -mt-20"></div>
             <div class="relative z-10">
@@ -138,16 +123,13 @@
                   <h3 id="realtimeCount" class="stat-value red text-5xl font-black mt-2">{{ $currentMonthVisits ?? 0 }}</h3>
                 </div>
                 <div class="icon-badge bg-gradient-to-br from-red-500 to-red-600 p-4 rounded-xl shadow-lg animate-pulse">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                  </svg>
+                  <i data-lucide="clock" class="w-8 h-8 text-white"></i>
                 </div>
               </div>
               <p class="text-slate-400 text-sm font-medium">Live visitor count</p>
             </div>
           </div>
 
-          <!-- Card: Upcoming Events -->
           <div class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade" style="animation-delay: 0.4s;">
             <div class="flex items-center justify-between mb-5">
               <div>
@@ -155,21 +137,15 @@
                 <h3 class="stat-value purple text-5xl font-black mt-2">{{ $upcomingEvents ?? 0 }}<span class="text-2xl text-slate-400">/{{ $totalEvents ?? 0 }}</span></h3>
               </div>
               <div class="icon-badge bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-5-5h5v5h-5z"/>
-                </svg>
+                <i data-lucide="calendar" class="w-8 h-8 text-white"></i>
               </div>
             </div>
             <p class="text-slate-400 text-sm font-medium">Upcoming events</p>
           </div>
 
         </div>
-        {{-- END STATS CARDS --}}
 
-
-      <!-- CHARTS & DATA SECTION -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
-        <!-- Line Chart: Monthly Website Visits -->
         <div class="bg-white bg-opacity-95 backdrop-blur-sm p-6 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-100">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -182,28 +158,27 @@
             </div>
           </div>
           <div class="h-64 chart-container">
-            <canvas id="visitsChart"></canvas>
+            <canvas id="visitsChart" data-labels="{{ json_encode($labels ?? []) }}" data-values="{{ json_encode($data ?? []) }}"></canvas>
           </div>
         </div>
 
-        <!-- Bar Chart: Website Visits (Realtime) -->
         <div class="bg-white bg-opacity-95 backdrop-blur-sm p-6 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-100">
           <div class="flex items-center justify-between mb-6">
             <div>
               <h3 class="text-xl font-bold text-gray-900">Visitor Analytics</h3>
               <p class="text-xs text-gray-500 mt-1">Monthly breakdown with real-time updates</p>
             </div>
-            <div class="text-3xl">📊</div>
+            <div class="text-gray-500">
+                <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+            </div>
           </div>
           <div class="h-64 chart-container">
-            <canvas id="visitorsChart"></canvas>
+            <canvas id="visitorsChart" data-labels="{{ json_encode($labels ?? []) }}" data-values="{{ json_encode($data ?? []) }}"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- DATA TABLES AND LISTS SECTION -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-        <!-- VISITS REPORT TABLE -->
         <div class="bg-white bg-opacity-95 backdrop-blur-sm rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden border border-gray-100">
           <div class="p-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 via-transparent to-transparent">
             <h3 class="text-xl font-bold text-gray-900">Visits Report</h3>
@@ -238,7 +213,6 @@
           </div>
         </div>
 
-        <!-- RECENT PLACES LIST -->
         <div class="bg-white bg-opacity-95 backdrop-blur-sm rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden border border-gray-100">
           <div class="p-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-green-50 via-transparent to-transparent">
             <h3 class="text-xl font-bold text-gray-900">Recently Added Places</h3>
@@ -254,16 +228,12 @@
                   <div class="flex-1 min-w-0">
                     <p class="text-gray-700 font-semibold group-hover:text-emerald-700 transition truncate text-sm">{{ $place->name }}</p>
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300 group-hover:text-emerald-600 transition ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 transition ml-2"></i>
                 </div>
               @endforeach
             @else
-              <div class="text-center py-8 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
+              <div class="text-center py-8 text-gray-400 flex flex-col items-center">
+                <i data-lucide="map" class="w-12 h-12 mb-2 opacity-30"></i>
                 <p class="text-sm font-semibold">No places added yet</p>
                 <p class="text-xs mt-1">New venues will appear here</p>
               </div>
@@ -276,21 +246,25 @@
     </div>
   </div>
 
-  <script>
-    // create chart instances and expose to update function
+  <script type="module">
     let visitsChartInstance = null;
     let visitorsChartInstance = null;
 
     const visitsCtx = document.getElementById('visitsChart');
+    const visitorsCtx = document.getElementById('visitorsChart');
+
+    const chartLabels = visitsCtx ? JSON.parse(visitsCtx.dataset.labels || '[]') : [];
+    const chartData = visitsCtx ? JSON.parse(visitsCtx.dataset.values || '[]') : [];
+
     if (visitsCtx) {
       visitsChartInstance = new Chart(visitsCtx, {
         type: 'line',
         data: {
-          labels: @json($labels ?? []),
+          labels: chartLabels,
           datasets: [
             {
               label: 'Website Visits',
-              data: @json($data ?? []),
+              data: chartData,
               borderColor: '#6366f1',
               backgroundColor: 'rgba(99, 102, 241, 0.08)',
               borderWidth: 3,
@@ -301,8 +275,6 @@
               pointBackgroundColor: '#6366f1',
               pointBorderColor: '#fff',
               pointBorderWidth: 3,
-              pointShadowBlur: 8,
-              shadowColor: 'rgba(99, 102, 241, 0.2)',
             }
           ]
         },
@@ -355,15 +327,14 @@
       });
     }
 
-    const visitorsCtx = document.getElementById('visitorsChart');
     if (visitorsCtx) {
       visitorsChartInstance = new Chart(visitorsCtx, {
         type: 'bar',
         data: {
-          labels: @json($labels ?? []),
+          labels: chartLabels,
           datasets: [{
             label: 'Website Visits',
-            data: @json($data ?? []),
+            data: chartData,
             backgroundColor: [
               '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308',
               '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9'
@@ -373,8 +344,6 @@
             hoverBackgroundColor: '#4f46e5',
             borderWidth: 2,
             borderColor: 'transparent',
-            shadowColor: 'rgba(0, 0, 0, 0.1)',
-            shadowBlur: 8,
           }]
         },
         options: {
@@ -414,9 +383,7 @@
         }
       });
     }
-  </script>
 
-  <script>
     function updateRealtime() {
       fetch("{{ route('realtime.visits') }}")
         .then(res => res.json())
@@ -424,7 +391,6 @@
           const count = json.currentMonthVisits;
           const element = document.getElementById('realtimeCount');
           if (element && element.innerText !== count.toString()) {
-            // Animate number change
             const oldValue = parseInt(element.innerText.replace(/,/g, ''));
             const newValue = count;
             
@@ -436,7 +402,7 @@
               }, 250);
             }
           }
-          // update charts with new monthly total if instances exist
+          
           try {
             if (visitorsChartInstance && visitorsChartInstance.data && visitorsChartInstance.data.datasets[0]) {
               const ds = visitorsChartInstance.data.datasets[0];
