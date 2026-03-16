@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $existingAdmin = DB::table('tblusers')
-            ->where('usertype', 'Admin')
+            ->where('username', 'admin')
             ->first();
 
         if (!$existingAdmin) {
@@ -25,7 +25,7 @@ class AdminSeeder extends Seeder
                 'username' => 'admin',
                 'password' => Hash::make('ann12345'),
                 'usertype' => 'Admin',
-                'status' => '1',
+                'status' => 'active'
             ]);
             $this->command->info('Admin created successfully.');
         } else {
