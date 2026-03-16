@@ -22,7 +22,7 @@ class AdminSeeder extends Seeder
                 'fname' => 'Reighn',
                 'mname' => 'C.',
                 'lname' => 'Ortega',
-                'username' => 'Admin',
+                'username' => 'admin',
                 'password' => Hash::make('ann12345'),
                 'usertype' => 'Admin',
                 'status' => '1',

@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-        AdminSeeder::class, // Ensure this class name matches your seeder file
+        AdminSeeder::class, 
     ]);
     }
     
