@@ -24,7 +24,7 @@ class AdminSeeder extends Seeder
                 'lname' => 'Ortega',
                 'username' => 'admin',
                 'password' => Hash::make('ann12345'),
-                'usertype' => 'Admin',
+                'usertype' => 'admin',
                 'status' => 'active'
             ]);
             $this->command->info('Admin created successfully.');
