@@ -20,7 +20,7 @@ class AdminCategoryController extends Controller
             $query->where('status', $request->status);
         }
 
-        $categories = $query->orderBy('cid')->paginate(15)->appends($request->only(['search', 'status']));
+        $categories = $query->orderBy('cid')->paginate(10)->appends($request->only(['search', 'status']));
 
         return view('admin.list.categoryadmin', compact('categories'));
     }
