@@ -10,9 +10,8 @@ class AdminAuth
 {
     public function handle(Request $request, Closure $next)
     {
-        // If user is NOT logged in, redirect to login
         if (!Auth::check()) {
-            // Only redirect for admin routes
+            // admin only
             if ($request->is('admin/*')) {
                 return redirect()->route('login');
             }
@@ -20,7 +19,6 @@ class AdminAuth
 
         // If user is logged in and staff, restrict access
         if (Auth::check() && Auth::user()->usertype === 'Staff') {
-            // allow only monthly visits routes for staff
             $allowed = [
                 'monthly-visits*',
                 'monthlyvisits*',

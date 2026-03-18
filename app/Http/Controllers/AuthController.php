@@ -36,7 +36,7 @@ class AuthController extends Controller
                 'date_time' => now(),
                 'action_taken' => 'Logged in'
             ]);
-
+            // all is well
             return redirect('/admin/admindashboard');
         }
 

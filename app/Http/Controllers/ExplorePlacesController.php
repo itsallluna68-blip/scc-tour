@@ -123,18 +123,16 @@ class ExplorePlacesController extends Controller
     $ip = $request->ip();
     $email = $request->email;
 
-    // Check if the same email already reviewed this place
     $existingEmailReview = Review::where('place_id', $placeId)
         ->where('email', $email)
         ->first();
-
+    // email review limit
     if ($existingEmailReview) {
         return back()->withErrors([
             'duplicate_review' => 'You have already reviewed this place using this email.'
         ])->withInput();
     }
-
-    // Check if the same IP reviewed this place in the last 1 hour
+    // review limit
     $recentIpReview = Review::where('place_id', $placeId)
         ->where('ip_address', $ip)
         ->where('date', '>=', now()->subHour())
@@ -150,7 +148,7 @@ class ExplorePlacesController extends Controller
     $response = Http::asForm()->post(
         'https://www.google.com/recaptcha/api/siteverify',
         [
-            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'secret' => env('6LdPuWosAAAAAA4M8UMIf1rni23EndzgKooS7Afh'),
             'response' => $request->input('g-recaptcha-response'),
             'remoteip' => $ip,
         ]
