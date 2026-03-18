@@ -296,8 +296,8 @@
                         </div>
 
                         <div class="mb-4 overflow-hidden">
-                            <div class="g-recaptcha" data-sitekey="{{ env('6LdPuWosAAAAAD_7DR4n-5p_5Nz-bCSweYgKBUfo') }}"></div>
-                        </div> 
+                            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                        </div>
 
                         <div class="flex justify-end gap-2">
                             <button type="button" @click="open = false" class="px-4 py-2 rounded-lg border hover:bg-gray-100 transition">Cancel</button>

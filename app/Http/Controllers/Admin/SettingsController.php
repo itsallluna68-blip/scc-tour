@@ -87,6 +87,7 @@ class SettingsController extends Controller
 
     private function updateSetting($term, $value)
     {
+        // additional check to prevent null values from overwriting existing settings daaaaamn naka auto comment
         if (!is_null($value)) {
             Setting::updateOrInsert(
                 ['term' => $term],

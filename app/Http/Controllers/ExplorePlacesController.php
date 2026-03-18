@@ -148,7 +148,7 @@ class ExplorePlacesController extends Controller
     $response = Http::asForm()->post(
         'https://www.google.com/recaptcha/api/siteverify',
         [
-            'secret' => env('6LdPuWosAAAAAA4M8UMIf1rni23EndzgKooS7Afh'),
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
             'response' => $request->input('g-recaptcha-response'),
             'remoteip' => $ip,
         ]
