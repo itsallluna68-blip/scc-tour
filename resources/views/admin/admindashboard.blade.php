@@ -30,15 +30,13 @@
         transform: translateY(-2px);
       }
       .stat-value {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #6366f1;
       }
-      .stat-value.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-text-fill-color: transparent; }
-      .stat-value.yellow { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-text-fill-color: transparent; }
-      .stat-value.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-text-fill-color: transparent; }
-      .stat-value.purple { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); -webkit-text-fill-color: transparent; }
+      .stat-value.green { color: #10b981; }
+      .stat-value.yellow { color: #f59e0b; }
+      .stat-value.red { color: #ef4444; }
+      .stat-value.purple { color: #a855f7; }
+
       .icon-badge {
         transition: all 0.3s ease;
       }
@@ -69,7 +67,9 @@
           </div>
           <div class="mt-6 md:mt-0 flex flex-col items-end">
             <span class="text-slate-400 text-sm">Last updated</span>
-            <span class="text-white font-semibold text-lg">{{ now()->format('F d, Y \a\t H:i') }}</span>
+            <span class="text-white font-semibold text-lg">
+    {{ now()->timezone('Asia/Manila')->format('F d, Y \a\t h:i A') }}
+</span>
           </div>
         </div>
 
@@ -115,8 +115,8 @@
           </div>
 
           <div id="realtimeCard" class="stat-card p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 card-fade relative overflow-hidden" style="animation-delay: 0.3s;">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-500 to-red-600 opacity-10 rounded-full -mr-20 -mt-20"></div>
-            <div class="relative z-10">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-500 to-red-600 opacity-10 rounded-full -mr-20 -mt-20 z-0 pointer-events-none"></div>
+            <div class="relative z-20">
               <div class="flex items-center justify-between mb-5">
                 <div>
                   <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">This Month</p>

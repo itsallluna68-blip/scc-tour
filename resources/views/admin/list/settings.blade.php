@@ -35,36 +35,7 @@
                     @csrf
                     @method('PUT')
 
-                    <div class="mb-8">
-                        <label class="block font-medium mb-2">Background Images</label>
-
-                        <div class="flex items-start gap-6">
-
-                            <div class="w-64">
-                                <input type="file" name="bgImg[]" multiple class="border p-2 rounded w-full">
-                            </div>
-
-                            @if(!empty($settings['bgImg']) && is_array($settings['bgImg']))
-                            <div class="flex gap-3 flex-wrap">
-                                @foreach($settings['bgImg'] as $img)
-                                <div class="relative">
-                                    <img src="{{ asset('uploads/settings/' . $img) }}"
-                                        class="w-32 h-24 object-cover rounded shadow">
-
-                                    <button type="button"
-                                        class="delete-image bg-red-600 text-white text-xs px-2 py-1 rounded-full absolute top-1 right-1"
-                                        data-image="{{ $img }}"
-                                        data-type="background">
-                                        ✕
-                                    </button>
-                                </div>
-                                @endforeach
-                            </div>
-                            @endif
-
-                        </div>
-                    </div>
-
+                    <!-- ✅ HISTORY IMAGES (kept) -->
                     <div class="mb-8">
                         <label class="block font-medium mb-2">History Images</label>
 
@@ -95,6 +66,7 @@
                         </div>
                     </div>
 
+                    <!-- TEXT SETTINGS -->
                     <div class="mb-4">
                         <label class="block font-medium mb-1">Tagline</label>
                         <input type="text" name="tagline"
