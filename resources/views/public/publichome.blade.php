@@ -24,7 +24,7 @@
   @endphp
 
   <section id="hero" class="relative h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden">
-    <img src="{{ asset('image/public/image/cathdral.jpg') }}"
+    <img src="{{ asset('image/public/image/sestra1.png') }}"
       alt="Tourism Image"
       class="absolute inset-0 w-full h-full object-cover scale-105 animate-[float_12s_ease-in-out_infinite]" />
     <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
