@@ -26,7 +26,7 @@ class TouristPlace extends Model
         'category3',
         'status',
         'transport',
-        'map_link', 
+        'map_link',
         'opening_hours',
         'is_popular',
     ];
@@ -34,10 +34,10 @@ class TouristPlace extends Model
     public $timestamps = false;
 
     protected $attributes = [
-    'status' => 1,
-    'image0' => '',
-    'image1' => '',
-    'image2' => '',
-    'image3' => '',
-];
+        'status' => 1,
+        'image0' => '',
+        'image1' => '',
+        'image2' => '',
+        'image3' => '',
+    ];
 }

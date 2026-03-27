@@ -10,7 +10,7 @@ class AdminCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::query();
+        $query = Category::query()->where('status', '!=', 2);
 
         if ($request->filled('search')) {
             $query->where('category', 'like', '%' . $request->search . '%');
@@ -67,9 +67,59 @@ class AdminCategoryController extends Controller
 
     public function destroy($cid)
     {
-        $category = Category::findOrFail($cid);
-        $category->delete();
+        try {
+            $category = Category::findOrFail($cid);
+            $category->update(['status' => 2]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
+            session()->flash('success', 'Category moved to trash successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to move category to trash.'
+            ]);
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        $query = Category::query()->where('status', 2);
+
+        if ($request->filled('search')) {
+            $query->where('category', 'like', '%' . $request->search . '%');
+        }
+
+        $categories = $query->orderBy('cid')->paginate(10)->appends($request->only(['search']));
+
+        return view('admin.list.bin.categorytrash', compact('categories'));
+    }
+
+    public function restore($cid)
+    {
+        try {
+            $category = Category::findOrFail($cid);
+            $category->update(['status' => 1]);
+
+            session()->flash('success', 'Category restored successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to restore category.']);
+        }
+    }
+
+    public function forceDelete($cid)
+    {
+        try {
+            $category = Category::findOrFail($cid);
+            $category->delete();
+
+            session()->flash('success', 'Category permanently deleted.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to permanently delete category.'
+            ]);
+        }
     }
 }

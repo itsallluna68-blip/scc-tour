@@ -9,8 +9,14 @@
   <title>San Carlos Tourism</title>
   @vite(['resources/css/app.css', 'resources/js/public.js'])
   <style>
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 
@@ -20,13 +26,10 @@
 
   @php
   $heroTagline = $settings['tagline'] ?? '"Soaring Green City of Opportunities. ¡Vamos, San Carlos!"';
-  $heroBgImage = $settings['bgImg'][0] ?? 'awania.png';
   @endphp
 
   <section id="hero" class="relative h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden">
-    <img src="{{ asset('image/awania.png') }}"
-      alt="Tourism Image"
-      class="absolute inset-0 w-full h-full object-cover scale-105 animate-[float_12s_ease-in-out_infinite]" />
+    <img src="{{ asset('image/can-carlos-city-hall.png') }}" alt="Tourism Image" class="absolute inset-0 w-full h-full object-cover scale-105 animate-[float_12s_ease-in-out_infinite]" />
     <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
 
     <div class="relative z-10 px-6 mt-32">
@@ -41,13 +44,13 @@
         Negros Occidental
       </h1>
       <div class="fade-up">
-        <a href="{{ route('activities.index') }}" class="mr-2 md:mr-4 mb-3 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-3 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('activities.index') }}" class="mr-2 md:mr-4 mb-3 inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-8 py-2 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
           Activities
         </a>
-        <a href="{{ route('exploreplaces') }}" class="mr-2 md:mr-4 mb-3 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-3 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+        <a href="{{ route('exploreplaces') }}" class="mr-2 md:mr-4 mb-3 inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-8 py-2 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
           Explore
         </a>
-        <a href="#a-events" class="inline-block mb-3 bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-3 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
+        <a href="#a-events" class="inline-block mb-3 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-8 py-2 rounded-full text-base md:text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
           Events
         </a>
       </div>
@@ -58,11 +61,10 @@
     <div class="max-w-6xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center gap-12">
       <div class="md:w-1/2 fade-right">
         @php
-        $historyImg = $settings['historyImg'][0] ?? null;
+        $historyImages = isset($settings['historyImg']) ? (is_string($settings['historyImg']) ? json_decode($settings['historyImg'], true) : $settings['historyImg']) : [];
+        $historyImgSrc = (!empty($historyImages) && isset($historyImages[0])) ? \Illuminate\Support\Facades\Storage::disk('s3')->url($historyImages[0]) : asset('image/scc_ovw.jpg');
         @endphp
-        <img src="{{ $historyImg ? asset('uploads/settings/' . $historyImg) : asset('image/scc_ovw.jpg') }}"
-          alt="San Carlos History"
-          class="w-full rounded-2xl shadow-lg object-cover transition-transform duration-500 hover:scale-105">
+        <img src="{{ $historyImgSrc }}" alt="San Carlos History" class="w-full rounded-2xl shadow-lg object-cover transition-transform duration-500 hover:scale-105">
       </div>
 
       <div class="md:w-1/2 space-y-5 fade-left">
@@ -71,7 +73,7 @@
           {!! nl2br(e(\Illuminate\Support\Str::limit($settings['historyTxt'] ?? 'No content added yet.', 500))) !!}
         </p>
         <a href="{{ route('historypage') }}" class="inline-block text-blue-600 hover:text-blue-800 font-medium transition">
-          Read →
+          Read More
         </a>
       </div>
     </div>
@@ -83,25 +85,25 @@
         Popular Places
       </h2>
 
-      <button id="scrollLeft" class="hidden md:flex items-center justify-center absolute left-6 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transition z-50">
-        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+      <button id="scrollLeft" class="hidden md:flex items-center justify-center absolute left-6 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition z-20">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
       </button>
 
-      <button id="scrollRight" class="hidden md:flex items-center justify-center absolute right-6 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transition z-50">
-        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+      <button id="scrollRight" class="hidden md:flex items-center justify-center absolute right-6 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition z-20">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
       </button>
 
       <div id="placesContainer" class="flex gap-8 overflow-x-auto pb-6 scrollbar-hide snap-x snap-mandatory scroll-smooth px-6 relative z-10 fade-up">
         @foreach ($popularPlaces as $place)
         <div class="relative min-w-[300px] md:min-w-[400px] h-80 rounded-2xl overflow-hidden shadow-lg snap-center group">
           @if(!empty($place->images) && count($place->images) > 0)
-          <img src="{{ asset('storage/' . $place->images[0]) }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="{{ $place->name }}">
+          <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($place->images[0]) }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="{{ $place->name }}">
           @endif
           <div class="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-50 transition duration-500"></div>
           <div class="absolute bottom-4 left-0 right-0 text-center z-10">
             <h3 class="text-white text-lg md:text-xl font-bold mb-2 shadow-sm">{{ $place->name }}</h3>
-            <a href="{{ route('exploreplaces.show', $place->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0 inline-block">
-              Visit →
+            <a href="{{ route('exploreplaces.show', $place->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0 inline-block">
+              Visit
             </a>
           </div>
         </div>
@@ -117,8 +119,8 @@
         <p class="text-gray-600 leading-relaxed text-justify">
           Experience the vibrant culture and lively activities that make our city truly special.
         </p>
-        <a href="{{ route('activities.index') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transform hover:scale-105 transition">
-          Discover More →
+        <a href="{{ route('activities.index') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md transform hover:scale-105 transition text-sm">
+          Discover More
         </a>
       </div>
 
@@ -158,7 +160,7 @@
         @forelse ($events as $event)
         <div class="min-w-[300px] md:min-w-[350px] bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition flex-shrink-0 group">
           <div class="overflow-hidden">
-            <img src="{{ ($event->pics && is_array($event->pics) && count($event->pics) > 0) ? asset('storage/'.$event->pics[0]) : asset('image/sample-event.jpg') }}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500" alt="{{ $event->events }}">
+            <img src="{{ (!empty($event->pics) && is_array($event->pics) && isset($event->pics[0])) ? \Illuminate\Support\Facades\Storage::disk('s3')->url($event->pics[0]) : asset('image/sample-event.jpg') }}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500" alt="{{ $event->events }}">
           </div>
           <div class="p-5">
             <h3 class="text-lg font-semibold text-gray-800 line-clamp-1">{{ $event->events }}</h3>
@@ -166,8 +168,8 @@
               {{ \Carbon\Carbon::parse($event->e_datetime)->format('F d, Y') }}
             </span>
             <div class="mt-5">
-              <a href="{{ route('events.show', $event->id) }}" class="inline-block text-sm font-medium bg-indigo-600 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition">
-                More Details →
+              <a href="{{ route('events.show', $event->id) }}" class="inline-block text-sm font-medium bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                More Details
               </a>
             </div>
           </div>
@@ -186,13 +188,13 @@
         {!! nl2br(e($settings['aboutUs'] ?? 'At SCC Tourism, we are dedicated to promoting adventure.')) !!}
       </p>
       <a href="{{ route('aboutuspage') }}" class="text-blue-600 hover:text-blue-800 font-medium transition">
-        Read More →
+        Read More
       </a>
     </div>
   </section>
 
-  <a href="#hero" id="backToTop" class="fixed bottom-6 right-6 z-50 hidden bg-blue-600 hover:bg-blue-700 text-white w-16 h-16 text-xl rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110">
-    <i data-lucide="arrow-up" class="w-6 h-6"></i>
+  <a href="#hero" id="backToTop" class="fixed bottom-6 right-6 z-20 hidden bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 text-xl rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110">
+    <i data-lucide="arrow-up" class="w-4 h-4"></i>
   </a>
 
   @include('components.ffooter')
@@ -202,15 +204,28 @@
     const scrollLeft = document.getElementById("scrollLeft");
     const scrollRight = document.getElementById("scrollRight");
 
-    if(scrollLeft && scrollContainer) {
-      scrollLeft.addEventListener("click", () => { scrollContainer.scrollBy({ left: -400, behavior: "smooth" }); });
-      scrollRight.addEventListener("click", () => { scrollContainer.scrollBy({ left: 400, behavior: "smooth" }); });
+    if (scrollLeft && scrollContainer) {
+      scrollLeft.addEventListener("click", () => {
+        scrollContainer.scrollBy({
+          left: -400,
+          behavior: "smooth"
+        });
+      });
+      scrollRight.addEventListener("click", () => {
+        scrollContainer.scrollBy({
+          left: 400,
+          behavior: "smooth"
+        });
+      });
     }
 
     const backToTop = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
-      if (window.scrollY > window.innerHeight * 0.6) { backToTop.classList.remove('hidden'); } 
-      else { backToTop.classList.add('hidden'); }
+      if (window.scrollY > window.innerHeight * 0.6) {
+        backToTop.classList.remove('hidden');
+      } else {
+        backToTop.classList.add('hidden');
+      }
     });
 
     const eventsContainer = document.getElementById("eventsContainer");
@@ -218,10 +233,21 @@
     const eventScrollRight = document.getElementById("eventScrollRight");
 
     if (eventScrollLeft && eventsContainer) {
-      eventScrollLeft.addEventListener("click", () => { eventsContainer.scrollBy({ left: -350, behavior: "smooth" }); });
-      eventScrollRight.addEventListener("click", () => { eventsContainer.scrollBy({ left: 350, behavior: "smooth" }); });
+      eventScrollLeft.addEventListener("click", () => {
+        eventsContainer.scrollBy({
+          left: -350,
+          behavior: "smooth"
+        });
+      });
+      eventScrollRight.addEventListener("click", () => {
+        eventsContainer.scrollBy({
+          left: 350,
+          behavior: "smooth"
+        });
+      });
     }
   </script>
 
 </body>
+
 </html>

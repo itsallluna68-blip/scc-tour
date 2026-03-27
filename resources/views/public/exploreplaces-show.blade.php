@@ -7,13 +7,22 @@
     <title>{{ $place->name }}</title>
     @vite(['resources/css/app.css', 'resources/js/public.js'])
     <link rel="icon" href="{{ asset('image/scpng.png') }}" type="image/png">
-    <script src="https://www.google.com/recaptcha/api.js" async defer crossorigin="anonymous"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col">
+
+    @if(session('success'))
+    <div id="flash-success" data-message="{{ session('success') }}" class="hidden"></div>
+    @endif
+    @if(session('error'))
+    <div id="flash-error" data-message="{{ session('error') }}" class="hidden"></div>
+    @endif
 
     @include('components.fnavbar')
     <div class="mb-12"></div>
@@ -24,7 +33,7 @@
         <div class="flex flex-col md:flex-row gap-8">
 
             <div class="flex flex-col md:flex-row gap-4 md:w-2/3" x-data="{
-                images: @js(array_map(fn($img) => asset('storage/' . $img), $place->images ?? [])),
+                images: @js(array_map(fn($img) => \Illuminate\Support\Facades\Storage::disk('s3')->url($img), $place->images ?? [])),
                 activeIndex: 0,
                 showModal: false,
                 zoom: 1,
@@ -78,9 +87,9 @@
             <div class="flex-1 space-y-4">
                 <div class="flex flex-wrap gap-2">
                     @foreach ($place->categories as $category)
-                        <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
-                            {{ $category->category }}
-                        </span>
+                    <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+                        {{ $category->category }}
+                    </span>
                     @endforeach
                 </div>
 
@@ -101,14 +110,14 @@
                     <span class="font-semibold text-gray-800">Website:</span>
                     <div class="flex flex-col">
                         @if($place->link1)
-                            <a href="{{ $place->link1 }}" target="_blank" class="text-blue-600 hover:underline break-all">
-                                {{ $place->link1 }}
-                            </a>
+                        <a href="{{ $place->link1 }}" target="_blank" class="text-blue-600 hover:underline break-all">
+                            {{ $place->link1 }}
+                        </a>
                         @endif
                         @if($place->link2)
-                            <a href="{{ $place->link2 }}" target="_blank" class="text-blue-600 hover:underline break-all">
-                                {{ $place->link2 }}
-                            </a>
+                        <a href="{{ $place->link2 }}" target="_blank" class="text-blue-600 hover:underline break-all">
+                            {{ $place->link2 }}
+                        </a>
                         @endif
                     </div>
                 </div>
@@ -145,110 +154,87 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-10" x-data="reviewModal({ open: {{ $errors->any() ? 'true' : 'false' }} })">
-            
+
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
                 <div class="flex items-center space-x-4">
                     <h2 class="text-2xl font-bold">Reviews</h2>
-                    <div class="flex items-center text-gray-700">
-                        <span class="text-yellow-400 text-xl">★</span>
-                        <span class="font-semibold ml-1">{{ number_format($averageRating ?? 0, 1) }}</span>
-                        <span class="text-gray-500 text-sm ml-2">({{ $reviewCount }} {{ Str::plural('review', $reviewCount) }})</span>
-                    </div>
                 </div>
-                <button @click="open = true" class="bg-blue-600 text-white px-5 py-2 w-full sm:w-auto rounded-lg hover:bg-blue-700 transition">
+                <button @click="open = true" class="bg-blue-600 text-white px-4 py-2 w-full sm:w-auto rounded-lg hover:bg-blue-700 transition text-sm shadow-sm font-medium">
                     Add Review
                 </button>
             </div>
 
             <div class="max-w-3xl mx-auto space-y-6">
-                {{-- LIMIT TO 5 REVIEWS ONLY --}}
                 @forelse ($place->reviews->take(5) as $review)
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 class="font-semibold text-gray-900">{{ $review->name }}</h3>
-                                <div class="flex items-center mt-1 text-yellow-400 text-sm">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        <span class="{{ $i <= $review->ratings ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">{{ $review->name }}</h3>
+                            <div class="flex items-center mt-1 text-yellow-400 text-sm">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <span class="{{ $i <= $review->ratings ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
                                     @endfor
-                                </div>
                             </div>
-                            <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($review->date)->format('M d, Y') }}</span>
                         </div>
-                        <p class="text-gray-700 mt-2 text-sm md:text-base">{{ $review->feedback }}</p>
-                        <div class="flex gap-2 mt-3 overflow-x-auto">
-                            @if ($review->rpic0) <img src="{{ asset('storage/' . $review->rpic0) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                            @if ($review->rpic1) <img src="{{ asset('storage/' . $review->rpic1) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                            @if ($review->rpic2) <img src="{{ asset('storage/' . $review->rpic2) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                        </div>
+                        <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($review->date)->format('M d, Y') }}</span>
                     </div>
+                    <p class="text-gray-700 mt-2 text-sm md:text-base">{{ $review->feedback }}</p>
+                    <div class="flex gap-2 mt-3 overflow-x-auto">
+                        @if ($review->rpic0) <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($review->rpic0) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
+                        @if ($review->rpic1) <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($review->rpic1) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
+                        @if ($review->rpic2) <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($review->rpic2) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
+                    </div>
+                </div>
                 @empty
-                    <p class="text-gray-500 text-center py-4">No reviews yet. Be the first to review this place.</p>
+                <p class="text-gray-500 text-center py-4">No reviews yet. Be the first to review this place.</p>
                 @endforelse
 
-                {{-- SHOW MORE BUTTON --}}
                 @if ($place->reviews->count() > 5)
-                    <div class="mt-6 flex justify-center">
-                        <button @click="showAllReviews = true" class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium">
-                            Show all {{ $reviewCount }} reviews
-                        </button>
-                    </div>
+                <div class="mt-6 flex justify-center">
+                    <button @click="showAllReviews = true" class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium">
+                        Show all {{ $reviewCount }} reviews
+                    </button>
+                </div>
                 @endif
             </div>
 
-            {{-- ALL REVIEWS MODAL --}}
             <div x-show="showAllReviews" x-transition.opacity x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                 <div @click.away="showAllReviews = false" class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 relative max-h-[90vh] flex flex-col">
-                    
                     <div class="flex justify-between items-center mb-4 shrink-0 border-b pb-4">
                         <h3 class="text-xl font-bold">All Reviews</h3>
                         <button @click="showAllReviews = false" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
                     </div>
-
                     <div class="overflow-y-auto pr-2 space-y-4 flex-1">
                         @foreach ($place->reviews as $review)
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900">{{ $review->name }}</h3>
-                                        <div class="flex items-center mt-1 text-yellow-400 text-sm">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                <span class="{{ $i <= $review->ratings ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">{{ $review->name }}</h3>
+                                    <div class="flex items-center mt-1 text-yellow-400 text-sm">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <span class="{{ $i <= $review->ratings ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
                                             @endfor
-                                        </div>
                                     </div>
-                                    <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($review->date)->format('M d, Y') }}</span>
                                 </div>
-                                <p class="text-gray-700 mt-2 text-sm md:text-base">{{ $review->feedback }}</p>
-                                <div class="flex gap-2 mt-3 overflow-x-auto">
-                                    @if ($review->rpic0) <img src="{{ asset('storage/' . $review->rpic0) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                                    @if ($review->rpic1) <img src="{{ asset('storage/' . $review->rpic1) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                                    @if ($review->rpic2) <img src="{{ asset('storage/' . $review->rpic2) }}" class="w-16 h-16 object-cover rounded-lg shrink-0 border"> @endif
-                                </div>
+                                <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($review->date)->format('M d, Y') }}</span>
                             </div>
+                            <p class="text-gray-700 mt-2 text-sm md:text-base">{{ $review->feedback }}</p>
+                        </div>
                         @endforeach
                     </div>
                 </div>
             </div>
 
-            {{-- ADD REVIEW MODAL --}}
             <div x-show="open" x-transition.opacity x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                 <div @click.away="open = false" class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
-                    
                     <button @click="open = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">✕</button>
 
                     @if ($errors->any())
-                        <div class="mb-4 p-3 rounded-lg bg-red-50 text-red-600 border border-red-200 text-sm">
-                            <ul class="list-disc pl-5">
-                                @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if(session('success'))
-                        <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 border border-green-400">
-                            {{ session('success') }}
-                        </div>
+                    <div class="mb-4 p-3 rounded-lg bg-red-50 text-red-600 border border-red-200 text-sm">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                        </ul>
+                    </div>
                     @endif
 
                     <form action="{{ route('review.store', $place->id) }}" method="POST" enctype="multipart/form-data">
@@ -257,18 +243,12 @@
 
                         <div class="mb-3">
                             <label for="reviewer_name" class="block text-sm font-medium mb-1 text-gray-700">Name</label>
-                            <input type="text" id="reviewer_name" name="name" autocomplete="name" value="{{ old('name') }}" required
+                            <input type="text" id="reviewer_name" name="name" autocomplete="off" value="{{ old('name') }}" required
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none">
                         </div>
 
                         <div class="mb-3">
-                            <label for="reviewer_email" class="block text-sm font-medium mb-1 text-gray-700">Email</label>
-                            <input type="email" id="reviewer_email" name="email" autocomplete="email" value="{{ old('email') }}" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="review_rating" class="block text-sm font-medium mb-1 text-gray-700">Rating</label>
+                            <span class="block text-sm font-medium mb-1 text-gray-700">Rating</span>
                             <input type="hidden" name="ratings" x-model="rating" id="review_rating" value="{{ old('ratings', 0) }}">
                             <div class="flex space-x-1 text-3xl cursor-pointer">
                                 <template x-for="star in 5" :key="star">
@@ -293,58 +273,61 @@
                             <label for="review_images" class="block text-sm font-medium mb-1 text-gray-700">Photos (max 3)</label>
                             <input type="file" id="review_images" name="images[]" multiple accept="image/*"
                                 class="w-full border border-gray-300 rounded-lg p-2 text-sm" @change="handleImageUpload($event)">
+
+                            <div class="flex gap-2 mt-3" x-show="images.length > 0" x-cloak>
+                                <template x-for="(image, index) in images" :key="index">
+                                    <div class="relative w-16 h-16 shrink-0">
+                                        <img :src="image" class="w-full h-full object-cover rounded-lg border shadow-sm">
+                                        <button type="button" @click="removeImage(index)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 shadow">✕</button>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
 
-                        <div class="mb-4 overflow-hidden">
+                        <div class="mb-6 mt-2">
                             <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
                         </div>
 
                         <div class="flex justify-end gap-2">
-                            <button type="button" @click="open = false" class="px-4 py-2 rounded-lg border hover:bg-gray-100 transition">Cancel</button>
-                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Submit</button>
+                            <button type="button" @click="open = false" class="px-4 py-2 rounded-lg border hover:bg-gray-100 transition text-sm">Cancel</button>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm shadow-sm">Submit Review</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        {{-- SIMILAR PLACES --}}
         @if($similarPlaces->count())
-            <div class="mt-16 max-w-5xl mx-auto">
-                <h2 class="text-2xl font-bold mb-6 text-gray-900">Similar Places</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    @foreach($similarPlaces as $similar)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition flex flex-col">
-                            <div class="h-48 w-full overflow-hidden shrink-0">
-                                @if(isset($similar->images[0]))
-                                    <img src="{{ asset('storage/' . $similar->images[0]) }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                                @else
-                                    <img src="{{ asset('image/no-image.png') }}" class="w-full h-full object-cover">
-                                @endif
-                            </div>
-                            <div class="p-5 flex flex-col flex-1">
-                                <h3 class="text-lg font-semibold text-gray-800 line-clamp-1">{{ $similar->name }}</h3>
-                                <div class="text-sm text-gray-500 mt-1 line-clamp-1">
-                                    @foreach($similar->categories as $category)
-                                        {{ $category->category }}@if(!$loop->last) • @endif
-                                    @endforeach
-                                </div>
-                                <div class="mt-auto pt-4">
-                                    <a href="{{ route('exploreplaces.show', $similar->id) }}"
-                                        class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition text-center w-full md:w-auto">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
+        <div class="mt-16 max-w-5xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900">Similar Places</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                @foreach($similarPlaces as $similar)
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition flex flex-col">
+                    <div class="h-48 w-full overflow-hidden shrink-0">
+                        @if(isset($similar->images[0]))
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($similar->images[0]) }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                        @else
+                        <img src="{{ asset('image/no-image.png') }}" class="w-full h-full object-cover">
+                        @endif
+                    </div>
+                    <div class="p-5 flex flex-col flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 line-clamp-1">{{ $similar->name }}</h3>
+                        <div class="mt-auto pt-4">
+                            <a href="{{ route('exploreplaces.show', $similar->id) }}"
+                                class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition text-center w-full md:w-auto shadow-sm">
+                                View Details
+                            </a>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
+                @endforeach
             </div>
+        </div>
         @endif
 
         <div class="mt-8 mb-4">
-            <a href="{{ route('exploreplaces') }}" class="text-blue-600 font-medium hover:underline inline-flex items-center">
-                ← Back to Explore Places
+            <a href="{{ route('exploreplaces') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm">
+                Back to Explore Places
             </a>
         </div>
     </div>
@@ -352,6 +335,20 @@
     @include('components.ffooter')
 
     <script>
+        function reRenderIcons() {
+            setTimeout(() => {
+                if (typeof window.lucide !== 'undefined') {
+                    window.lucide.createIcons({
+                        icons: window.lucide.icons
+                    });
+                }
+            }, 50);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            reRenderIcons();
+        });
+
         const tabButtons = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
 
@@ -363,7 +360,6 @@
                     btn.classList.add('text-gray-500');
                 });
                 tabContents.forEach(content => content.classList.add('hidden'));
-
                 button.classList.add('border-blue-600', 'text-blue-600');
                 button.classList.remove('text-gray-500');
                 document.getElementById(target).classList.remove('hidden');
@@ -377,13 +373,28 @@
                 open: initial.open || false,
                 showAllReviews: false,
                 rating: 0,
+                files: [],
                 images: [],
                 handleImageUpload(event) {
-                    const files = Array.from(event.target.files);
-                    files.forEach(file => {
-                        if (this.images.length >= 3) return;
+                    const newFiles = Array.from(event.target.files);
+                    this.files = [...this.files, ...newFiles].slice(0, 3);
+                    this.updateInputAndPreviews();
+                },
+                removeImage(index) {
+                    this.files.splice(index, 1);
+                    this.updateInputAndPreviews();
+                },
+                updateInputAndPreviews() {
+                    const dt = new DataTransfer();
+                    this.files.forEach(file => dt.items.add(file));
+                    document.getElementById('review_images').files = dt.files;
+
+                    this.images = [];
+                    this.files.forEach(file => {
                         const reader = new FileReader();
-                        reader.onload = (e) => { this.images.push(e.target.result); };
+                        reader.onload = (e) => {
+                            this.images.push(e.target.result);
+                        };
                         reader.readAsDataURL(file);
                     });
                 }
@@ -391,4 +402,5 @@
         }
     </script>
 </body>
+
 </html>

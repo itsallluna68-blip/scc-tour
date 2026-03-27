@@ -15,10 +15,11 @@ class AdminEventController extends Controller
         $status = $request->status;
 
         $events = Events::query()
+            ->where('status', '!=', 2)
             ->when($search, fn($query) => $query->where('events', 'like', "%$search%"))
             ->when($request->filled('status') && in_array($status, ['0', '1']), fn($query) => $query->where('status', $status))
             ->orderBy('e_datetime', 'desc')
-            ->get();
+            ->paginate(10)->appends($request->only(['search', 'status']));
 
         return view('admin.list.eventadmin', compact('events'));
     }
@@ -42,7 +43,7 @@ class AdminEventController extends Controller
         if ($request->hasFile('pics')) {
             foreach ($request->file('pics') as $file) {
                 if ($file->isValid()) {
-                    $images[] = $file->store('events', 'public');
+                    $images[] = $file->store('events', 's3');
                 }
             }
         }
@@ -81,7 +82,7 @@ class AdminEventController extends Controller
         if ($request->hasFile('pics')) {
             foreach ($request->file('pics') as $file) {
                 if ($file->isValid()) {
-                    $images[] = $file->store('events', 'public');
+                    $images[] = $file->store('events', 's3');
                 }
             }
         }
@@ -110,8 +111,8 @@ class AdminEventController extends Controller
             return $img !== $imageToRemove;
         });
 
-        if (!empty($imageToRemove) && Storage::disk('public')->exists($imageToRemove)) {
-            Storage::disk('public')->delete($imageToRemove);
+        if (!empty($imageToRemove) && Storage::disk('s3')->exists($imageToRemove)) {
+            Storage::disk('s3')->delete($imageToRemove);
         }
 
         $event->pics = array_values($updated);
@@ -122,17 +123,67 @@ class AdminEventController extends Controller
 
     public function destroy($id)
     {
-        $event = Events::findOrFail($id);
+        try {
+            $event = Events::findOrFail($id);
+            $event->update(['status' => 2]);
 
-        $images = $event->pics ?? [];
-        foreach ($images as $img) {
-            if (Storage::disk('public')->exists($img)) {
-                Storage::disk('public')->delete($img);
-            }
+            session()->flash('success', 'Event moved to trash successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to move event to trash.'
+            ]);
         }
+    }
 
-        $event->delete();
+    public function trash(Request $request)
+    {
+        $search = $request->search;
 
-        return redirect()->route('admin.events.index')->with('success', 'Event deleted successfully.');
+        $events = Events::query()
+            ->where('status', 2)
+            ->when($search, fn($query) => $query->where('events', 'like', "%$search%"))
+            ->orderBy('e_datetime', 'desc')
+            ->paginate(10)->appends($request->only(['search']));
+
+        return view('admin.list.bin.eventstrash', compact('events'));
+    }
+
+    public function restore($id)
+    {
+        try {
+            $event = Events::findOrFail($id);
+            $event->update(['status' => 1]);
+
+            session()->flash('success', 'Event restored successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to restore event.']);
+        }
+    }
+
+    public function forceDelete($id)
+    {
+        try {
+            $event = Events::findOrFail($id);
+
+            $images = $event->pics ?? [];
+            foreach ($images as $img) {
+                if (Storage::disk('s3')->exists($img)) {
+                    Storage::disk('s3')->delete($img);
+                }
+            }
+
+            $event->delete();
+
+            session()->flash('success', 'Event permanently deleted.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to permanently delete event.'
+            ]);
+        }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Events;
 use App\Models\Exploreplaces;
 use Carbon\Carbon;
@@ -13,8 +12,7 @@ class publichomeController extends Controller
     {
         $now = Carbon::now();
 
-        // Get next 5 upcoming ACTIVE events only
-        $events = Events::where('status', 1) // ✅ only active
+        $events = Events::where('status', 1)
             ->where('e_datetime', '>=', $now)
             ->orderBy('e_datetime', 'asc')
             ->take(5)
@@ -25,13 +23,12 @@ class publichomeController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        // load settings for history image/text
         $settings = \App\Models\Setting::pluck('details', 'term')->toArray();
+
         if (isset($settings['historyImg'])) {
             $settings['historyImg'] = json_decode($settings['historyImg'], true);
         }
 
         return view('public.publichome', compact('events', 'popularPlaces', 'settings'));
     }
-
 }

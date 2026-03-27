@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
     public function edit()
     {
         if (Auth::check() && Auth::user()->usertype !== 'admin') {
-            abort(403, 'Unauthorized access. Only Admin can manage settings.');
+            abort(403);
         }
 
         $settings = Setting::all()->pluck('details', 'term')->toArray();
@@ -25,13 +26,17 @@ class SettingsController extends Controller
             $settings['bgImg'] = json_decode($settings['bgImg'], true);
         }
 
+        if (isset($settings['aboutUsImg'])) {
+            $settings['aboutUsImg'] = json_decode($settings['aboutUsImg'], true);
+        }
+
         return view('admin.list.settings', compact('settings'));
     }
 
     public function update(Request $request)
     {
         if (Auth::check() && Auth::user()->usertype !== 'admin') {
-            abort(403, 'Unauthorized access. Only Admin can manage settings.');
+            abort(403);
         }
 
         $textFields = ['tagline', 'historyTxt', 'aboutUs', 'address', 'telephone', 'mobile', 'email'];
@@ -45,13 +50,14 @@ class SettingsController extends Controller
         if ($request->hasFile('bgImg')) {
             $existing = Setting::where('term', 'bgImg')->value('details');
             $existingImages = json_decode($existing, true);
-            $existingImages = is_array($existingImages) ? $existingImages : [];
-            $newImages = [];
+            if (!is_array($existingImages)) {
+                $existingImages = [];
+            }
 
-            foreach ($request->file('bgImg') as $file) {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/settings'), $filename);
-                $newImages[] = $filename;
+            $newImages = [];
+            foreach ($request->file('bgImg') as $image) {
+                $path = $image->store('settings/bg', 's3');
+                $newImages[] = $path;
             }
 
             $allImages = array_merge($existingImages, $newImages);
@@ -65,13 +71,14 @@ class SettingsController extends Controller
         if ($request->hasFile('historyImg')) {
             $existing = Setting::where('term', 'historyImg')->value('details');
             $existingImages = json_decode($existing, true);
-            $existingImages = is_array($existingImages) ? $existingImages : [];
-            $newImages = [];
+            if (!is_array($existingImages)) {
+                $existingImages = [];
+            }
 
-            foreach ($request->file('historyImg') as $file) {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/settings'), $filename);
-                $newImages[] = $filename;
+            $newImages = [];
+            foreach ($request->file('historyImg') as $image) {
+                $path = $image->store('settings/history', 's3');
+                $newImages[] = $path;
             }
 
             $allImages = array_merge($existingImages, $newImages);
@@ -82,12 +89,32 @@ class SettingsController extends Controller
             );
         }
 
+        if ($request->hasFile('aboutUsImg')) {
+            $existing = Setting::where('term', 'aboutUsImg')->value('details');
+            $existingImages = json_decode($existing, true);
+            if (!is_array($existingImages)) {
+                $existingImages = [];
+            }
+
+            $newImages = [];
+            foreach ($request->file('aboutUsImg') as $image) {
+                $path = $image->store('settings/aboutus', 's3');
+                $newImages[] = $path;
+            }
+
+            $allImages = array_merge($existingImages, $newImages);
+
+            Setting::updateOrInsert(
+                ['term' => 'aboutUsImg'],
+                ['details' => json_encode($allImages)]
+            );
+        }
+
         return redirect()->route('admin.settings.edit')->with('success', 'Settings updated successfully.');
     }
 
     private function updateSetting($term, $value)
     {
-        // additional check to prevent null values from overwriting existing settings daaaaamn naka auto comment
         if (!is_null($value)) {
             Setting::updateOrInsert(
                 ['term' => $term],
@@ -96,37 +123,10 @@ class SettingsController extends Controller
         }
     }
 
-    public function removeImage(Request $request)
-    {
-        if (Auth::check() && Auth::user()->usertype !== 'admin') {
-            abort(403, 'Unauthorized access. Only Admin can manage settings.');
-        }
-
-        $imageToDelete = $request->image;
-        $existing = Setting::where('term', 'historyImg')->value('details');
-        $images = $existing ? json_decode($existing, true) : [];
-
-        $updatedImages = array_filter($images, function ($img) use ($imageToDelete) {
-            return $img !== $imageToDelete;
-        });
-
-        $filePath = public_path('uploads/settings/' . $imageToDelete);
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-
-        Setting::updateOrInsert(
-            ['term' => 'historyImg'],
-            ['details' => json_encode(array_values($updatedImages))]
-        );
-
-        return back();
-    }
-
     public function ajaxDeleteImage(Request $request)
     {
         if (Auth::check() && Auth::user()->usertype !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            return response()->json(['success' => false]);
         }
 
         $image = $request->image;
@@ -136,7 +136,17 @@ class SettingsController extends Controller
             return response()->json(['success' => false]);
         }
 
-        $term = $type === 'background' ? 'bgImg' : 'historyImg';
+        $term = match ($type) {
+            'background' => 'bgImg',
+            'history' => 'historyImg',
+            'aboutus' => 'aboutUsImg',
+            default => null
+        };
+
+        if (!$term) {
+            return response()->json(['success' => false]);
+        }
+
         $setting = Setting::where('term', $term)->first();
 
         if (!$setting) {
@@ -146,12 +156,13 @@ class SettingsController extends Controller
         $images = json_decode($setting->details, true) ?? [];
         $images = array_filter($images, fn($img) => $img !== $image);
 
-        $path = public_path('uploads/settings/' . $image);
-        if (file_exists($path)) {
-            unlink($path);
+        if (Storage::disk('s3')->exists($image)) {
+            Storage::disk('s3')->delete($image);
+        } elseif (Storage::exists($image)) {
+            Storage::delete($image);
         }
 
-        $setting->update([
+        Setting::where('term', $term)->update([
             'details' => json_encode(array_values($images))
         ]);
 

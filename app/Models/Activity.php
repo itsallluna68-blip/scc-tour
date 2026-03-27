@@ -25,5 +25,5 @@ class Activity extends Model
     public function places()
     {
         return $this->belongsToMany(Exploreplaces::class, 'place_activity', 'aid', 'place_id');
-}
+    }
 }

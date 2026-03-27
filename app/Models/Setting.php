@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    protected $table = 'tblsetting';   // custom table name
-    protected $primaryKey = 'sid';     // custom primary key
+    protected $table = 'tblsetting';
+    protected $primaryKey = 'sid';
 
-    public $timestamps = false;        // disable if you don't have created_at & updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'term',

@@ -9,7 +9,6 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
-
 class ExplorePlacesController extends Controller
 {
     public function index(Request $request)
@@ -17,11 +16,8 @@ class ExplorePlacesController extends Controller
         $search = $request->input('search');
         $selectedCategories = $request->categories ?? [];
         $selectedActivities = $request->activities ?? [];
-
-        // Only get categories with status = 1
         $categories = PlaceCategory::where('status', 1)->get();
 
-        // Only get activities with a_status = 1 and linked to selected categories
         $activities = Activity::where('a_status', 1)
             ->when(!empty($selectedCategories), function ($query) use ($selectedCategories) {
                 $query->whereHas('categories', function ($q) use ($selectedCategories) {
@@ -30,21 +26,18 @@ class ExplorePlacesController extends Controller
             })
             ->get();
 
-
-
-        // Filter places
         $exploreplaces = Exploreplaces::with('categories')
-
-            // Reviews
-            ->withAvg('reviews', 'ratings')
-            ->withCount('reviews')
-
+            ->withAvg(['reviews' => function ($query) {
+                $query->where('status', 'approved');
+            }], 'ratings')
+            ->withCount(['reviews' => function ($query) {
+                $query->where('status', 'approved');
+            }])
             ->where('status', 1)
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
             })
             ->when(!empty($selectedCategories), function ($query) use ($selectedCategories) {
-                // Only show places that have ALL selected categories
                 foreach ($selectedCategories as $catId) {
                     $query->whereHas('categories', function ($q) use ($catId) {
                         $q->where('cid', $catId);
@@ -53,7 +46,7 @@ class ExplorePlacesController extends Controller
             })
             ->when(!empty($selectedActivities), function ($query) use ($selectedActivities) {
                 $query->whereHas('activities', function ($q) use ($selectedActivities) {
-                    $q->where('aid', $selectedActivities[0]); // Only allow one activity at a time
+                    $q->where('aid', $selectedActivities[0]);
                 });
             })
             ->orderByDesc('reviews_avg_ratings')
@@ -71,16 +64,15 @@ class ExplorePlacesController extends Controller
 
     public function show($id)
     {
-        $place = Exploreplaces::with([
+        $place = Exploreplaces::where('status', 1)->with([
             'categories',
             'reviews' => function ($query) {
-                $query->orderBy('date', 'desc');
+                $query->where('status', 'approved')->orderBy('date', 'desc');
             }
         ])->findOrFail($id);
 
         $categoryIds = $place->categories->pluck('cid');
 
-        // Get similar places
         $similarPlaces = Exploreplaces::with('categories')
             ->where('status', 1)
             ->whereHas('categories', function ($query) use ($categoryIds) {
@@ -90,13 +82,9 @@ class ExplorePlacesController extends Controller
             ->limit(3)
             ->get();
 
-        // ✅ Calculate average rating
         $averageRating = $place->reviews->count()
             ? round($place->reviews->avg('ratings'), 1)
             : 0;
-
-
-        // ✅ Total reviews
         $reviewCount = $place->reviews->count();
         $reviews = $place->reviews;
 
@@ -109,79 +97,60 @@ class ExplorePlacesController extends Controller
         ));
     }
 
-   public function storeReview(Request $request, $placeId)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'ratings' => 'required|integer|min:1|max:5',
-        'feedback' => 'required|string',
-        'g-recaptcha-response' => 'required',
-        'images.*' => 'nullable|image|max:2048',
-    ]);
+    public function storeReview(Request $request, $placeId)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'ratings' => 'required|integer|min:1|max:5',
+            'feedback' => 'required|string',
+            'g-recaptcha-response' => 'required',
+            'images.*' => 'nullable|image|max:5048',
+        ]);
 
-    $ip = $request->ip();
-    $email = $request->email;
+        $ip = $request->ip();
 
-    $existingEmailReview = Review::where('place_id', $placeId)
-        ->where('email', $email)
-        ->first();
-    // email review limit
-    if ($existingEmailReview) {
-        return back()->withErrors([
-            'duplicate_review' => 'You have already reviewed this place using this email.'
-        ])->withInput();
-    }
-    // review limit
-    $recentIpReview = Review::where('place_id', $placeId)
-        ->where('ip_address', $ip)
-        ->where('date', '>=', now()->subHour())
-        ->first();
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'response' => $request->input('g-recaptcha-response'),
+                'remoteip' => $ip,
+            ]
+        );
 
-    if ($recentIpReview) {
-        return back()->withErrors([
-            'duplicate_review' => 'A review from your network was recently submitted. Please wait before submitting another review.'
-        ])->withInput();
-    }
+        $recaptchaData = $response->json();
 
-    // Verify reCAPTCHA
-    $response = Http::asForm()->post(
-        'https://www.google.com/recaptcha/api/siteverify',
-        [
-            'secret' => env('RECAPTCHA_SECRET_KEY'),
-            'response' => $request->input('g-recaptcha-response'),
-            'remoteip' => $ip,
-        ]
-    );
+        if (!($recaptchaData['success'] ?? false)) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'reCAPTCHA verification failed. Please check the box again.'
+            ])->withInput();
+        }
 
-    $recaptchaData = $response->json();
+        try {
+            $review = new Review();
+            $review->place_id = $placeId;
+            $review->name = $request->name;
+            $review->ratings = $request->ratings;
+            $review->feedback = $request->feedback;
+            $review->date = now();
+            $review->ip_address = $ip;
+            $review->status = 'pending';
 
-    if (!($recaptchaData['success'] ?? false)) {
-        return back()->withErrors([
-            'g-recaptcha-response' => 'reCAPTCHA verification failed.'
-        ])->withInput();
-    }
+            if ($request->file('images')) {
+                foreach ($request->file('images') as $index => $file) {
+                    if ($index > 2) break;
+                    $review->{'rpic' . $index} = $file->store('reviews', 's3');
+                }
+            }
 
-    // Save review
-    $review = new Review();
-    $review->place_id = $placeId;
-    $review->name = $request->name;
-    $review->email = $email;
-    $review->ratings = $request->ratings;
-    $review->feedback = $request->feedback;
-    $review->date = now();
-    $review->ip_address = $ip;
+            $review->save();
 
-    if ($request->file('images')) {
-        foreach ($request->file('images') as $index => $file) {
-            if ($index > 2) break;
-            $review->{'rpic' . $index} = $file->store('reviews', 'public');
+            return redirect()->route('exploreplaces.show', $placeId)
+                ->with('success', 'Review submitted! It will be visible once approved.');
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'db_error' => 'Database Error: Not save. ' . $e->getMessage()
+            ])->withInput();
         }
     }
-
-    $review->save();
-
-    return redirect()->route('exploreplaces.show', $placeId)
-    ->with('success', 'Review submitted successfully!');
-}
 }

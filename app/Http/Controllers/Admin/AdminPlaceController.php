@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Exploreplaces;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,17 +12,21 @@ class AdminPlaceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Exploreplaces::query();
+        $search = $request->search;
+        $status = $request->status;
 
-        if ($search = $request->input('search')) {
-            $query->where('name', 'like', "%{$search}%");
-        }
+        $places = Exploreplaces::with('categories')
+            ->where('status', '!=', 2)
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when($request->filled('status') && in_array($status, ['0', '1']), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->appends($request->only(['search', 'status']));
 
-        if (!is_null($request->input('status'))) {
-            $query->where('status', $request->input('status'));
-        }
-
-        $places = $query->with('categories')->orderBy('id')->get();
         $categories = Category::where('status', 1)->get();
 
         return view('admin.list.placeadmin', compact('places', 'categories'));
@@ -32,105 +36,86 @@ class AdminPlaceController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'address' => 'nullable|string|max:255',
+            'contact' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'link1' => 'nullable|url',
+            'link2' => 'nullable|url',
+            'map_link' => 'nullable|url',
+            'opening_hours' => 'nullable|string|max:255',
+            'transport' => 'nullable|string',
+            'description' => 'nullable|string',
+            'history' => 'nullable|string',
+            'status' => 'nullable|boolean',
+            'is_popular' => 'nullable|boolean',
+            'categories' => 'nullable|array',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
         ]);
 
-        $place = new Exploreplaces();
-        $place->name = $request->name;
-        $place->contact = $request->contact;
-        $place->email = $request->email;
-        $place->address = $request->address;
-        $place->description = $request->description;
-        $place->history = $request->history;
-        $place->transport = $request->transport;
-        $place->map_link = $request->map_link;
-        $place->opening_hours = $request->opening_hours;
-        $place->link1 = $request->link1;
-        $place->link2 = $request->link2;
-        $place->status = $request->has('status') ? 1 : 0;
-        $place->is_popular = $request->has('is_popular') ? 1 : 0;
-
-        $imagePaths = [];
+        $uploadedImages = [];
 
         if ($request->hasFile('main_image')) {
-            $mainPath = $request->file('main_image')->store('places', 'public');
-            $imagePaths[] = $mainPath;
+            $uploadedImages[] = $request->file('main_image')->store('places', 's3');
         }
 
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('places', 'public');
+            foreach ($request->file('images') as $image) {
+                $uploadedImages[] = $image->store('places', 's3');
             }
         }
 
-        $place->images = $imagePaths;
-        $place->save();
+        $place = Exploreplaces::create([
+            'name' => $request->name,
+            'address' => $request->address,
+            'contact' => $request->contact,
+            'email' => $request->email,
+            'link1' => $request->link1,
+            'link2' => $request->link2,
+            'map_link' => $request->map_link,
+            'opening_hours' => $request->opening_hours,
+            'transport' => $request->transport,
+            'description' => $request->description,
+            'history' => $request->history,
+            'status' => $request->has('status') ? 1 : 0,
+            'is_popular' => $request->has('is_popular') ? 1 : 0,
+            'images' => $uploadedImages,
+        ]);
 
-        if ($request->has('categories')) {
-            $place->categories()->sync($request->categories);
-        }
+        $place->categories()->sync($request->categories ?? []);
 
         return redirect()->route('admin.places.index')->with('success', 'Place added successfully.');
     }
 
-    public function update(Request $request, $id)
+    public function show($id)
     {
-        $place = Exploreplaces::findOrFail($id);
-
-        $place->name = $request->name;
-        $place->contact = $request->contact;
-        $place->email = $request->email;
-        $place->address = $request->address;
-        $place->description = $request->description;
-        $place->history = $request->history;
-        $place->transport = $request->transport;
-        $place->map_link = $request->map_link;
-        $place->opening_hours = $request->opening_hours;
-        $place->link1 = $request->link1;
-        $place->link2 = $request->link2;
-        $place->status = $request->has('status') ? 1 : 0;
-        $place->is_popular = $request->has('is_popular') ? 1 : 0;
-
-        $imagePaths = $place->images ?? [];
-
-        if ($request->hasFile('main_image')) {
-            $mainPath = $request->file('main_image')->store('places', 'public');
-
-            if (count($imagePaths) > 0) {
-                $imagePaths[0] = $mainPath;
-            } else {
-                $imagePaths[] = $mainPath;
-            }
-        }
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
-                $imagePaths[] = $file->store('places', 'public');
-            }
-        }
-
-        $place->images = $imagePaths;
-        $place->save();
-
-        if ($request->has('categories')) {
-            $place->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.places.index')->with('success', 'Place updated successfully.');
+        $place = Exploreplaces::with('categories')->findOrFail($id);
+        return response()->json($place);
     }
 
     public function removeImage(Request $request, $id)
     {
+        $request->validate([
+            'image' => 'required|string'
+        ]);
+
         $place = Exploreplaces::findOrFail($id);
         $imageToRemove = $request->image;
-        $images = $place->images ?? [];
+
+        $images = $place->images;
+        if (is_string($images)) {
+            $images = json_decode($images, true);
+        }
+        if (!is_array($images)) {
+            $images = [];
+        }
 
         $updatedImages = array_filter($images, function ($img) use ($imageToRemove) {
             return $img !== $imageToRemove;
         });
 
-        if (Storage::disk('public')->exists($imageToRemove)) {
-            Storage::disk('public')->delete($imageToRemove);
+        if (!empty($imageToRemove) && Storage::disk('s3')->exists($imageToRemove)) {
+            Storage::disk('s3')->delete($imageToRemove);
         }
 
         $place->images = array_values($updatedImages);
@@ -139,20 +124,144 @@ class AdminPlaceController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function destroy($id)
+    public function update(Request $request, $id)
     {
         $place = Exploreplaces::findOrFail($id);
 
-        $images = $place->images ?? [];
-        foreach ($images as $img) {
-            if (Storage::disk('public')->exists($img)) {
-                Storage::disk('public')->delete($img);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'contact' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'link1' => 'nullable|url',
+            'link2' => 'nullable|url',
+            'map_link' => 'nullable|url',
+            'opening_hours' => 'nullable|string|max:255',
+            'transport' => 'nullable|string',
+            'description' => 'nullable|string',
+            'history' => 'nullable|string',
+            'status' => 'nullable|boolean',
+            'is_popular' => 'nullable|boolean',
+            'categories' => 'nullable|array',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
+        ]);
+
+        $existingImages = $place->images;
+        if (is_string($existingImages)) {
+            $existingImages = json_decode($existingImages, true);
+        }
+        if (!is_array($existingImages)) {
+            $existingImages = [];
+        }
+
+        if ($request->hasFile('main_image')) {
+            $mainImgPath = $request->file('main_image')->store('places', 's3');
+            array_unshift($existingImages, $mainImgPath);
+        }
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $existingImages[] = $image->store('places', 's3');
             }
         }
 
-        $place->categories()->detach();
-        $place->delete();
+        $place->update([
+            'name' => $request->name,
+            'address' => $request->address,
+            'contact' => $request->contact,
+            'email' => $request->email,
+            'link1' => $request->link1,
+            'link2' => $request->link2,
+            'map_link' => $request->map_link,
+            'opening_hours' => $request->opening_hours,
+            'transport' => $request->transport,
+            'description' => $request->description,
+            'history' => $request->history,
+            'status' => $request->has('status') ? 1 : 0,
+            'is_popular' => $request->has('is_popular') ? 1 : 0,
+            'images' => $existingImages,
+        ]);
 
-        return redirect()->route('admin.places.index')->with('success', 'Place deleted successfully.');
+        $place->categories()->sync($request->categories ?? []);
+
+        return redirect()->route('admin.places.index')->with('success', 'Place updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $place = Exploreplaces::findOrFail($id);
+            $place->update(['status' => 2]);
+
+            session()->flash('success', 'Place moved to trash successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to move place to trash.'
+            ]);
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        $search = $request->search;
+
+        $places = Exploreplaces::with('categories')
+            ->where('status', 2)
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->appends($request->only(['search']));
+
+        return view('admin.list.bin.placestrash', compact('places'));
+    }
+
+    public function restore($id)
+    {
+        try {
+            $place = Exploreplaces::findOrFail($id);
+            $place->update(['status' => 1]);
+
+            session()->flash('success', 'Place restored successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to restore place.']);
+        }
+    }
+
+    public function forceDelete($id)
+    {
+        try {
+            $place = Exploreplaces::findOrFail($id);
+
+            $images = $place->images;
+            if (is_string($images)) {
+                $images = json_decode($images, true);
+            }
+            if (!is_array($images)) {
+                $images = [];
+            }
+
+            foreach ($images as $img) {
+                if (Storage::disk('s3')->exists($img)) {
+                    Storage::disk('s3')->delete($img);
+                }
+            }
+
+            $place->categories()->detach();
+            $place->delete();
+
+            session()->flash('success', 'Place permanently deleted.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to permanently delete place.'
+            ]);
+        }
     }
 }

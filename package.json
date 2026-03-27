@@ -26,6 +26,7 @@
         "@tailwindcss/line-clamp": "^0.4.4",
         "alpinejs": "^3.15.8",
         "chart.js": "^4.5.1",
-        "lucide": "^0.577.0"
+        "lucide": "^0.577.0",
+        "sweetalert2": "^11.26.24"
     }
 }

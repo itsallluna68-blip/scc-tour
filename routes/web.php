@@ -16,6 +16,7 @@ use App\Http\Controllers\publichomeController;
 use App\Http\Controllers\TouristPlaceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
+use App\Http\Controllers\Admin\ReviewAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [publichomeController::class, 'index']);
@@ -47,6 +48,27 @@ Route::get('/bin/users', [UserController::class, 'trash'])->name('bin.users');
 Route::patch('/bin/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('bin/activities', [AdminActivityController::class, 'trash'])->name('activities.trash');
+    Route::patch('bin/activities/{id}/restore', [AdminActivityController::class, 'restore'])->name('activities.restore');
+    Route::delete('bin/activities/{id}/force-delete', [AdminActivityController::class, 'forceDelete'])->name('activities.forceDelete');
+
+    Route::get('bin/categories', [AdminCategoryController::class, 'trash'])->name('categories.trash');
+    Route::patch('bin/categories/{id}/restore', [AdminCategoryController::class, 'restore'])->name('categories.restore');
+    Route::delete('bin/categories/{id}/force-delete', [AdminCategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+
+    Route::get('bin/places', [AdminPlaceController::class, 'trash'])->name('places.trash');
+    Route::patch('bin/places/{id}/restore', [AdminPlaceController::class, 'restore'])->name('places.restore');
+    Route::delete('bin/places/{id}/force-delete', [AdminPlaceController::class, 'forceDelete'])->name('places.forceDelete');
+
+    Route::get('bin/events', [AdminEventController::class, 'trash'])->name('events.trash');
+    Route::patch('bin/events/{id}/restore', [AdminEventController::class, 'restore'])->name('events.restore');
+    Route::delete('bin/events/{id}/force-delete', [AdminEventController::class, 'forceDelete'])->name('events.forceDelete');
+
+    Route::get('reviews', [ReviewAdminController::class, 'index'])->name('reviews.index');
+    Route::patch('reviews/{rid}/approve', [ReviewAdminController::class, 'approve'])->name('reviews.approve');
+    Route::patch('reviews/{rid}/deactivate', [ReviewAdminController::class, 'deactivate'])->name('reviews.deactivate');
+    Route::delete('reviews/{rid}', [ReviewAdminController::class, 'destroy'])->name('reviews.destroy');
+
     Route::resource('activities', AdminActivityController::class);
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('places', AdminPlaceController::class);
@@ -76,5 +98,6 @@ Route::middleware(['admin.auth', 'no-cache'])->group(function () {
     Route::put('/users/update/{id}', [UserController::class, 'update'])->name('users.update');
     Route::get('/users/delete/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('/user-log', [UserHistoryController::class, 'index'])->name('userlog.index');
+    Route::get('/user-log/delete/{id}', [UserHistoryController::class, 'destroy'])->name('userlog.destroy');
     Route::get('/history', [HistoryController::class, 'index'])->name('history');
 });

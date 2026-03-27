@@ -11,6 +11,10 @@
         .arrow-btn {
             @apply absolute top-1/2 -translate-y-1/2 bg-black bg-opacity-30 text-white p-2 rounded-full cursor-pointer hover:bg-opacity-50;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -28,7 +32,7 @@
         <div class="w-24 h-1 bg-indigo-600 mb-10"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" x-data="{
-    images: @js(array_map(fn($img) => asset('storage/' . $img), $event->pics ?? [])),
+    images: @js(array_map(fn($img) => \Illuminate\Support\Facades\Storage::disk('s3')->url($img), $event->pics ?? [])),
     activeIndex: 0,
     showModal: false,
     zoom: 1,
@@ -66,9 +70,9 @@
         <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
                 <div>
-                    <p class="text-sm text-gray-500">Date & Time</p>
+                    <p class="text-sm text-gray-500">Date</p>
                     <p class="font-semibold text-lg">
-                        {{ \Carbon\Carbon::parse($event->e_datetime)->format('F j, Y ') }}
+                        {{ \Carbon\Carbon::parse($event->e_datetime)->format('F d, Y') }}
                     </p>
                 </div>
                 <div>
@@ -82,7 +86,7 @@
                     <p class="text-sm text-gray-500">Map</p>
                     <a href="{{ $event->e_maplink }}" target="_blank"
                         class="text-indigo-600 hover:underline font-medium break-words">
-                        View on Map →
+                        View on Map
                     </a>
                 </div>
                 @endif
@@ -91,7 +95,7 @@
                     <p class="text-sm text-gray-500">Official Link</p>
                     <a href="{{ $event->e_link }}" target="_blank"
                         class="text-indigo-600 hover:underline font-medium break-words">
-                        Visit Website →
+                        Visit Website
                     </a>
                 </div>
                 @endif
@@ -120,13 +124,13 @@
                 <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col">
                     <img
                         src="{{ $other->pics && is_array($other->pics) && count($other->pics) > 0
-                              ? asset('storage/' . $other->pics[0]) 
+                              ? \Illuminate\Support\Facades\Storage::disk('s3')->url($other->pics[0]) 
                               : asset('image/sample-event.jpg') }}"
                         class="w-full h-44 object-cover"
                         alt="{{ $other->events }}">
                     <div class="p-5 flex flex-col flex-grow">
                         <span class="text-xs text-indigo-600 font-medium">
-                            {{ \Carbon\Carbon::parse($other->e_datetime)->format('F d, Y ') }}
+                            {{ \Carbon\Carbon::parse($other->e_datetime)->format('F d, Y') }}
                         </span>
                         <h3 class="text-lg font-semibold text-gray-800 mt-1">
                             {{ $other->events }}

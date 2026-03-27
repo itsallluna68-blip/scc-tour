@@ -25,5 +25,3 @@
   @endif
 
 </header>
-
-@include('components.toast')

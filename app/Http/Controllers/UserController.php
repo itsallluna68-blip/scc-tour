@@ -17,7 +17,7 @@ class UserController extends Controller
 
         $search = $request->input('search');
 
-        $users = User::where('status', 'active')
+        $users = User::whereIn('status', ['active', 'block'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('fname', 'LIKE', "%{$search}%")
@@ -66,7 +66,6 @@ class UserController extends Controller
         }
 
         $user = User::findOrFail($id);
-
         $validated = $request->validate([
             'fname' => 'required|string|max:255',
             'mname' => 'nullable|string|max:255',
@@ -74,6 +73,7 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:tblusers,username,' . $id . ',id',
             'password' => 'nullable|string|min:8',
             'usertype' => 'required|string|in:admin,staff',
+            'status' => 'required|in:active,block',
         ]);
 
         if (!empty($validated['password'])) {
@@ -95,9 +95,9 @@ class UserController extends Controller
         }
 
         $user = User::findOrFail($id);
-        $user->update(['status' => 'block']);
+        $user->update(['status' => 'trash']);
 
-        return redirect()->route('users.index')->with('success', 'User deactivated successfully!');
+        return redirect()->route('users.index')->with('success', 'User moved to trash successfully!');
     }
 
     public function trash(Request $request)
@@ -108,7 +108,7 @@ class UserController extends Controller
 
         $search = $request->input('search');
 
-        $users = User::where('status', 'block')
+        $users = User::where('status', 'trash')
             ->when($search, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('fname', 'LIKE', "%{$search}%")
@@ -131,7 +131,23 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->update(['status' => 'active']);
 
-        return response()->json(['success' => true, 'message' => 'User restored successfully!']);
+        session()->flash('success', 'User restored successfully!');
+
+        return response()->json(['success' => true]);
+    }
+
+    public function forceDelete($id)
+    {
+        if (Auth::check() && Auth::user()->usertype !== 'admin') {
+            abort(403, 'Unauthorized access. Only Admin can delete users.');
+        }
+
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        session()->flash('success', 'User permanently deleted!');
+
+        return response()->json(['success' => true]);
     }
 
     public function search(Request $request)
@@ -141,7 +157,9 @@ class UserController extends Controller
         }
 
         $query = $request->get('query', '');
-        $users = User::where('fname', 'LIKE', "%{$query}%")->get();
+        $users = User::whereIn('status', ['active', 'block'])
+            ->where('fname', 'LIKE', "%{$query}%")
+            ->get();
 
         return view('admin.list.partials.users_table', compact('users'));
     }

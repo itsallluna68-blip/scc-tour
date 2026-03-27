@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ActivityController extends Controller
 {
@@ -17,13 +17,14 @@ class ActivityController extends Controller
 
         $activities = Activity::query()
             ->with('categories')
+            ->where('a_status', '!=', 2)
             ->when($search, function ($query) use ($search) {
                 $query->where('a_name', 'like', "%{$search}%");
             })
             ->when($status !== null && $status !== '', function ($query) use ($status) {
                 $query->where('a_status', $status);
             })
-            ->get();
+            ->paginate(10)->appends($request->only(['search', 'status']));
 
         $categories = Category::where('status', 1)->get();
 
@@ -41,10 +42,7 @@ class ActivityController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('img0')) {
-            $image = $request->file('img0');
-            $imageName = time() . '_' . Str::slug($request->a_name) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/activities'), $imageName);
-            $imagePath = 'uploads/activities/' . $imageName;
+            $imagePath = $request->file('img0')->store('activities', 's3');
         }
 
         $activity = Activity::create([
@@ -73,11 +71,18 @@ class ActivityController extends Controller
             'categories' => 'nullable|array',
         ]);
 
+        if ($request->input('remove_image') == '1') {
+            if ($activity->img0 && Storage::disk('s3')->exists($activity->img0)) {
+                Storage::disk('s3')->delete($activity->img0);
+            }
+            $activity->img0 = '';
+        }
+
         if ($request->hasFile('img0')) {
-            $image = $request->file('img0');
-            $imageName = time() . '_' . Str::slug($request->a_name) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/activities'), $imageName);
-            $activity->img0 = 'uploads/activities/' . $imageName;
+            if ($activity->img0 && Storage::disk('s3')->exists($activity->img0)) {
+                Storage::disk('s3')->delete($activity->img0);
+            }
+            $activity->img0 = $request->file('img0')->store('activities', 's3');
         }
 
         $activity->a_name   = $request->a_name;
@@ -92,15 +97,68 @@ class ActivityController extends Controller
 
     public function destroy($aid)
     {
-        $activity = Activity::where('aid', $aid)->firstOrFail();
+        try {
+            $activity = Activity::where('aid', $aid)->firstOrFail();
 
-        if ($activity->img0 && file_exists(public_path($activity->img0))) {
-            unlink(public_path($activity->img0));
+            $activity->update(['a_status' => 2]);
+
+            session()->flash('success', 'Activity moved to trash successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to move activity to trash.'
+            ]);
         }
+    }
 
-        $activity->categories()->detach();
-        $activity->delete();
+    public function trash(Request $request)
+    {
+        $search = $request->search;
 
-        return redirect()->route('admin.activities.index')->with('success', 'Activity deleted successfully.');
+        $activities = Activity::query()
+            ->with('categories')
+            ->where('a_status', 2)
+            ->when($search, function ($query) use ($search) {
+                $query->where('a_name', 'like', "%{$search}%");
+            })
+            ->paginate(10)->appends($request->only(['search']));
+
+        return view('admin.list.bin.activitytrash', compact('activities'));
+    }
+
+    public function restore($aid)
+    {
+        try {
+            $activity = Activity::where('aid', $aid)->firstOrFail();
+            $activity->update(['a_status' => 1]);
+
+            session()->flash('success', 'Activity restored successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to restore activity.']);
+        }
+    }
+
+    public function forceDelete($aid)
+    {
+        try {
+            $activity = Activity::where('aid', $aid)->firstOrFail();
+
+            if ($activity->img0 && Storage::disk('s3')->exists($activity->img0)) {
+                Storage::disk('s3')->delete($activity->img0);
+            }
+
+            $activity->categories()->detach();
+            $activity->delete();
+
+            session()->flash('success', 'Activity permanently deleted.');
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to permanently delete activity.'
+            ]);
+        }
     }
 }

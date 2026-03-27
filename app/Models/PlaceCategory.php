@@ -12,21 +12,16 @@ class PlaceCategory extends Model
     protected $table = 'tblcategories';
     protected $primaryKey = 'cid';
 
-    public function places(){
+    public function places()
+    {
         return $this->belongsToMany(
-        // Exploreplaces::class,'tblplacecategory',
-        // 'placeid',
-        // 'categoryid',
-        // 'cid', 
-        // 'id'   
-        // cocogrove 4 devs 2-21
-        Exploreplaces::class,
-        'tblplacecategory',
-        'categoryid',
-        'placeid',
-        'cid',
-        'id'
-    );
+            Exploreplaces::class,
+            'tblplacecategory',
+            'categoryid',
+            'placeid',
+            'cid',
+            'id'
+        );
     }
 
     public function activities()
@@ -37,7 +32,7 @@ class PlaceCategory extends Model
             'categoryid',
             'activityid',
             'cid',
-             'aid'
+            'aid'
         );
     }
 }

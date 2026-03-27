@@ -1,38 +1,35 @@
 <?php
 
 namespace App\Providers;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\ServiceProvider;
+
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-
-
 use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-
-
-
+    public function register(): void {}
 
     public function boot(): void
     {
-        // Force HTTPS if the application is not running locally
-        if ($this->app->environment('production')) {
-            URL::forceScheme('https');
-        }
+        Vite::prefetch(concurrency: 3);
+
         Paginator::useTailwind();
+
+        try {
+            $settings = Setting::pluck('details', 'term')->toArray();
+
+            if (isset($settings['historyImg'])) {
+                $settings['historyImg'] = json_decode($settings['historyImg'], true);
+            }
+            if (isset($settings['bgImg'])) {
+                $settings['bgImg'] = json_decode($settings['bgImg'], true);
+            }
+
+            View::share('settings', $settings);
+        } catch (\Throwable $e) {
+        }
     }
 }
-

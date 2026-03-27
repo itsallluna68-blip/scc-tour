@@ -23,12 +23,16 @@
       <h2 class="text-2xl font-bold text-indigo-600">{{ $date }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @foreach ($dayEvents as $evt)
-        <div class="bg-white rounded-lg shadow p-5 space-y-3">
-          <img src="{{ !empty($evt->pics) && is_array($evt->pics) && count($evt->pics) > 0 ? asset('storage/' . $evt->pics[0]) : asset('image/sample-event.jpg') }}" class="w-full h-48 object-cover rounded-md">
-          <p>{{ \Carbon\Carbon::parse($evt->e_datetime)->format('F j, Y g:i A') }}</p>
-          <h1 class="text-xl font-semibold">{{ $evt->events }}</h1>
-          <p class="text-gray-600 line-clamp-2">{{ $evt->e_info }}</p>
-          <a href="{{ route('events.show', $evt->id) }}" class="inline-block text-blue-600 font-medium hover:underline">View Details →</a>
+        <div class="bg-white rounded-lg shadow p-5 space-y-3 flex flex-col">
+          <img src="{{ !empty($evt->pics) && is_array($evt->pics) && count($evt->pics) > 0 ? \Illuminate\Support\Facades\Storage::disk('s3')->url($evt->pics[0]) : asset('image/sample-event.jpg') }}" class="w-full h-48 object-cover rounded-md">
+          <p class="text-gray-500 text-sm font-medium">{{ \Carbon\Carbon::parse($evt->e_datetime)->format('F d, Y') }}</p>
+          <h1 class="text-xl font-semibold text-gray-900">{{ $evt->events }}</h1>
+          <p class="text-gray-600 line-clamp-2 flex-grow">{{ $evt->e_info }}</p>
+          <div class="pt-3 mt-auto">
+            <a href="{{ route('events.show', $evt->id) }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2 rounded-lg transition duration-300 shadow-sm">
+              View Details
+            </a>
+          </div>
         </div>
         @endforeach
       </div>

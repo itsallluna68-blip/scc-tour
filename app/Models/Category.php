@@ -27,7 +27,7 @@ class Category extends Model
             'tblcategoryactivity',
             'categoryid',
             'activityid',
-            
+
         );
     }
 
@@ -37,11 +37,10 @@ class Category extends Model
             Exploreplaces::class,
             'tblplacecategory',
             'categoryid',
-            'placeid'
-            // cocogrove w 4 devs 2-21
-            ,'cid',
-        'id'
-            
+            'placeid',
+            'cid',
+            'id'
+
         );
     }
 }

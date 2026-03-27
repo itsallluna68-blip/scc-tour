@@ -23,7 +23,7 @@
 
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-5 md:p-10">
 
-        <img src="{{ $activity->img0 ? asset($activity->img0) : asset('image/sample-activity.jpg') }}" alt="{{ $activity->a_name }}" class="w-full h-56 md:h-80 object-cover rounded-xl mb-6">
+        <img src="{{ !empty($activity->img0) ? \Illuminate\Support\Facades\Storage::disk('s3')->url($activity->img0) : asset('image/sample-activity.jpg') }}" alt="{{ $activity->a_name }}" class="w-full h-56 md:h-80 object-cover rounded-xl mb-6">
 
         <p class="text-gray-700 leading-relaxed mb-6 text-justify md:text-left">{{ $activity->a_info }}</p>
         <p class="text-xl font-semibold text-blue-800 mb-4">Places to Visit</p>
@@ -46,7 +46,7 @@
 
             <div class="w-full md:w-1/3 shrink-0">
               @if(isset($place->images[0]))
-              <img src="{{ asset('storage/' . $place->images[0]) }}"
+              <img src="{{ \Illuminate\Support\Facades\Storage::disk('s3')->url($place->images[0]) }}"
                 alt="{{ $place->name }}"
                 class="w-full h-48 object-cover rounded-lg shadow">
               @else
@@ -63,7 +63,7 @@
 
               <a href="{{ route('exploreplaces.show', $place->id) }}"
                 class="inline-block mt-3 text-blue-600 font-medium hover:underline self-start">
-                Read more →
+                Read more
               </a>
             </div>
           </div>
@@ -77,8 +77,8 @@
         @endforeach
 
         <div class="mt-8 border-t border-gray-200 pt-6">
-          <a href="{{ route('activities.index') }}" class="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition w-full md:w-auto font-medium">
-            ← Back to Activities
+          <a href="{{ route('activities.index') }}" class="inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto font-medium">
+            Back to Activities 
           </a>
         </div>
       </div>

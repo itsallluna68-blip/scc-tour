@@ -32,6 +32,9 @@
       <a href="{{ route('admin.events.index') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-indigo-50 hover:text-indigo-800 transition">
         Events
       </a>
+      <a href="{{ route('admin.reviews.index') }}" class="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-indigo-50 hover:text-indigo-800 transition">
+        <span>Reviews</span>
+      </a>
     </div>
 
     @if(auth()->check() && auth()->user()->usertype === 'admin')
@@ -57,7 +60,7 @@
     </div>
     @endif
 
-    {{-- <div x-data="{ open: false }" class="mt-6">
+    <div x-data="{ open: false }" class="mt-6">
       <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-red-50 hover:text-red-700 transition">
         <div class="flex items-center gap-2">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -67,12 +70,16 @@
       </button>
 
       <div x-show="open" x-transition class="mt-2 ml-3 space-y-1">
-        <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Activities</a>
-        <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Categories</a>
-        <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Places</a>
-        <a href="#" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Events</a>
+        <a href="{{ route('admin.activities.trash') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Activities</a>
+        <a href="{{ route('admin.categories.trash') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Categories</a>
+        <a href="{{ route('admin.places.trash') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Places</a>
+        <a href="{{ route('admin.events.trash') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Events</a>
+
+        @if(auth()->check() && auth()->user()->usertype === 'admin')
+        <a href="{{ route('bin.users') }}" class="block px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition">Users</a>
+        @endif
       </div>
-    </div> --}}
+    </div>
 
     <div class="mt-2">
       <a href="{{ route('monthlyvisits.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-800 transition">

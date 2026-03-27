@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TouristPlace;
 use App\Models\Category;
-use App\Models\Review;
 
 class TouristPlaceController extends Controller
 {
@@ -55,8 +54,7 @@ class TouristPlaceController extends Controller
         return redirect()->back()->with('success', 'Tourist Place added successfully!');
     }
 
-    // EDIT TOURIST PLACE
-        public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $place = TouristPlace::findOrFail($id);
 
@@ -76,10 +74,8 @@ class TouristPlaceController extends Controller
             'image3' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
-        // Prevent status changes
         $validated['status'] = $place->status;
 
-        // Handle new images if uploaded
         for ($i = 0; $i < 4; $i++) {
             $field = 'image' . $i;
             if ($request->hasFile($field)) {
@@ -94,8 +90,4 @@ class TouristPlaceController extends Controller
 
         return redirect()->back()->with('success', 'Tourist Place updated successfully!');
     }
-
-    // REVIEWS
-    
-
 }

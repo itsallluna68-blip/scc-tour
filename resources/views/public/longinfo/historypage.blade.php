@@ -32,41 +32,38 @@
 
 <body class="bg-gray-50 font-sans text-gray-800">
 
-  {{-- header --}}
   @include('components.fnavbar')
   <div class="mb-12"></div>
 
-  {{-- HISTORY CONTENT --}}
   <section class="max-w-5xl mx-auto px-6 py-16">
 
-    <!-- Title -->
     <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">
-            {{ $settings['history_title'] ?? 'History San Carlos City' }}
-        </h1>
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+        {{ $settings['history_title'] ?? 'History San Carlos City' }}
+      </h1>
 
-        <p class="text-gray-600 text-lg">
-            {{ $settings['history_subtitle'] ?? '' }}
-        </p>
+      <p class="text-gray-600 text-lg">
+        {{ $settings['history_subtitle'] ?? '' }}
+      </p>
     </div>
 
-    <!-- Image -->
     <div class="flex justify-center mb-10">
-        @php
-            $historyImg = $settings['historyImg'][0] ?? null;
-        @endphp
-        <img src="{{ $historyImg ? asset('uploads/settings/' . $historyImg) : asset('image/scc_ovw.jpg') }}"
-             class="w-full md:w-4/5 lg:w-3/4 h-72 object-cover rounded-2xl shadow-lg">
+      @php
+      $historyImgSrc = asset('image/scc_ovw.jpg');
+      if (!empty($settings['historyImg']) && isset($settings['historyImg'][0])) {
+      $img = $settings['historyImg'][0];
+      $historyImgSrc = str_contains($img, '/') ? Storage::disk('s3')->url($img) : asset('uploads/settings/' . $img);
+      }
+      @endphp
+      <img src="{{ $historyImgSrc }}" class="w-full md:w-4/5 lg:w-3/4 h-72 object-cover rounded-2xl shadow-lg">
     </div>
 
-    <!-- Content -->
     <div class="text-gray-700 leading-relaxed text-justify">
-        {!! nl2br(e($settings['historyTxt'] ?? 'No content added yet.')) !!}
+      {!! nl2br(e($settings['historyTxt'] ?? 'No content added yet.')) !!}
     </div>
 
-</section>
+  </section>
 
-  {{-- footer --}}
   @include('components.ffooter')
 
 </body>

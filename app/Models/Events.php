@@ -15,12 +15,12 @@ class Events extends Model
         'e_location',
         'e_maplink',
         'e_link',
-        'pics',    
+        'pics',
         'status',
     ];
 
     protected $casts = [
-        'pics' => 'array',  
+        'pics' => 'array',
     ];
 
     public $timestamps = false;
