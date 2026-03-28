@@ -8,16 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('tblvisitorcount', function (Blueprint $table) {
+        Schema::table('tblreviews', function (Blueprint $table) {
+            // Remove email column
+            $table->dropColumn('email');
+
+            // Add status column
             $table->enum('status', ['pending', 'approved', 'deactivated'])
                   ->default('pending')
-                  ->after('visitor_type'); // or after any column you want
+                  ->after('ip_address');
         });
     }
 
     public function down(): void
     {
-        Schema::table('tblvisitorcount', function (Blueprint $table) {
+        Schema::table('tblreviews', function (Blueprint $table) {
+            // Re-add email column (rollback)
+            $table->string('email')->nullable();
+
+            // Remove status column
             $table->dropColumn('status');
         });
     }
