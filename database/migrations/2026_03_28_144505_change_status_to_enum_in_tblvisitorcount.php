@@ -9,15 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            // Add the visitor_type column as a string
-            $table->string('visitor_type')->after('total_visitors')->nullable()->default('resident');
+            // Change 'status' from integer to enum
+            $table->enum('status', ['pending', 'approved', 'deactivated'])
+                  ->default('pending')
+                  ->change();
         });
     }
 
     public function down(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            $table->dropColumn('visitor_type');
+            // Revert back to integer if you ever rollback
+            $table->integer('status')->default(0)->change();
         });
     }
 };

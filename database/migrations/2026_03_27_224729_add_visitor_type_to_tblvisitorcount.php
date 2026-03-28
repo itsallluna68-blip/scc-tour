@@ -6,18 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            // Add the visitor_type column as a string
-            $table->string('visitor_type')->after('total_visitors')->nullable()->default('resident');
+            //
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            $table->dropColumn('visitor_type');
+            //
         });
     }
 };
