@@ -9,18 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            // Change 'status' from integer to enum
             $table->enum('status', ['pending', 'approved', 'deactivated'])
                   ->default('pending')
-                  ->change();
+                  ->after('visitor_type'); // or after any column you want
         });
     }
 
     public function down(): void
     {
         Schema::table('tblvisitorcount', function (Blueprint $table) {
-            // Revert back to integer if you ever rollback
-            $table->integer('status')->default(0)->change();
+            $table->dropColumn('status');
         });
     }
 };
